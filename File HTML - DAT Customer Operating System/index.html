@@ -1,0 +1,2319 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DAT Customer Operating System · Base.vn Proposal</title>
+<meta name="description" content="Đề xuất triển khai hệ thống quản trị khách hàng cho DAT Group">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --dat-blue: #0E92D4;
+    --dat-blue-dark: #066BA0;
+    --dat-blue-darker: #054E76;
+    --dat-blue-light: #E6F4FB;
+    --dat-blue-lighter: #F5FAFD;
+    --dat-orange: #F58220;
+    --dat-orange-dark: #D26C0F;
+    --dat-orange-light: #FDE9D3;
+    --ink: #0A1628;
+    --body: #334155;
+    --muted: #64748B;
+    --border: #E2E8F0;
+    --bg-subtle: #F8FAFC;
+  }
+
+  * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Be Vietnam Pro', system-ui, sans-serif;
+    color: var(--body);
+    background: #fff;
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  .font-display { font-family: 'Sora', 'Be Vietnam Pro', sans-serif; letter-spacing: -0.02em; }
+
+  /* Color utilities */
+  .text-dat-blue { color: var(--dat-blue); }
+  .text-dat-blue-dark { color: var(--dat-blue-dark); }
+  .text-dat-orange { color: var(--dat-orange); }
+  .text-ink { color: var(--ink); }
+  .text-body { color: var(--body); }
+  .text-muted { color: var(--muted); }
+  .bg-dat-blue { background-color: var(--dat-blue); }
+  .bg-dat-blue-dark { background-color: var(--dat-blue-dark); }
+  .bg-dat-blue-light { background-color: var(--dat-blue-light); }
+  .bg-dat-blue-lighter { background-color: var(--dat-blue-lighter); }
+  .bg-dat-orange { background-color: var(--dat-orange); }
+  .bg-dat-orange-light { background-color: var(--dat-orange-light); }
+  .bg-subtle { background-color: var(--bg-subtle); }
+  .border-subtle { border-color: var(--border); }
+
+  /* Backgrounds */
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, rgba(14, 146, 212, 0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(14, 146, 212, 0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
+  .bg-dots {
+    background-image: radial-gradient(circle, rgba(14, 146, 212, 0.08) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  /* Nav */
+  .nav-link {
+    position: relative;
+    color: var(--muted);
+    font-weight: 500;
+    font-size: 14px;
+    padding: 8px 0;
+    transition: color 0.2s;
+  }
+  .nav-link:hover { color: var(--ink); }
+  .nav-link.active { color: var(--dat-blue); }
+  .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--dat-blue);
+  }
+
+  /* ==== TAB SYSTEM (Level 1) ==== */
+  .tab-item {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    border-left: 3px solid transparent;
+    padding: 20px 18px 20px 22px;
+    user-select: none;
+  }
+  .tab-item:hover { background: var(--dat-blue-lighter); }
+  .tab-item.active {
+    background: var(--dat-blue-lighter);
+    border-left-color: var(--dat-blue);
+  }
+  .tab-item .tab-number {
+    color: var(--muted);
+    font-weight: 600;
+    transition: color 0.25s;
+  }
+  .tab-item.active .tab-number { color: var(--dat-blue); }
+  .tab-item .tab-title {
+    color: var(--ink);
+    font-weight: 600;
+    transition: color 0.25s;
+  }
+  .tab-item.active .tab-title { color: var(--dat-blue-dark); }
+  .tab-item .tab-arrow {
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: all 0.25s;
+  }
+  .tab-item.active .tab-arrow {
+    opacity: 1;
+    transform: translateX(0);
+    color: var(--dat-blue);
+  }
+
+  /* Tab panels */
+  .tab-panel { display: none; animation: fadeInUp 0.4s cubic-bezier(0.4, 0, 0.2, 1) both; }
+  .tab-panel.active { display: block; }
+
+  /* ==== SUB-TABS (Level 2 for năng lực section) ==== */
+  .sub-tabs {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding: 4px 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .sub-tabs::-webkit-scrollbar { display: none; }
+  .sub-tab {
+    flex-shrink: 0;
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-family: inherit;
+  }
+  .sub-tab:hover { color: var(--ink); }
+  .sub-tab.active {
+    color: var(--dat-blue-dark);
+    border-bottom-color: var(--dat-blue);
+  }
+  .sub-tab .sub-num {
+    display: inline-block;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--bg-subtle);
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 22px;
+    text-align: center;
+    margin-right: 8px;
+    transition: all 0.2s;
+    font-weight: 700;
+  }
+  .sub-tab.active .sub-num {
+    background: var(--dat-blue);
+    color: white;
+  }
+
+  .sub-panel { display: none; animation: fadeInUp 0.35s cubic-bezier(0.4, 0, 0.2, 1) both; }
+  .sub-panel.active { display: block; }
+
+  /* ==== IMAGE WITH FALLBACK PLACEHOLDER ==== */
+  .img-wrap {
+    position: relative;
+    width: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg-subtle);
+  }
+  .img-wrap img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+  }
+  .img-placeholder {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 24px;
+    background: linear-gradient(135deg, #F1F5F9 0%, #E2E8F0 100%);
+    border: 2px dashed #CBD5E1;
+    border-radius: 12px;
+    text-align: center;
+    min-height: 280px;
+  }
+  .img-placeholder.error-shown {
+    display: flex;
+  }
+  .img-placeholder .ph-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  }
+  .img-placeholder .ph-filename {
+    font-family: 'Sora', monospace;
+    font-size: 13px;
+    color: var(--ink);
+    font-weight: 600;
+    margin-bottom: 4px;
+    word-break: break-all;
+  }
+  .img-placeholder .ph-hint {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .img-placeholder .ph-tag {
+    margin-top: 10px;
+    padding: 4px 10px;
+    background: var(--dat-blue-light);
+    color: var(--dat-blue-dark);
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  /* Hero animations */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .hero-fade { animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) both; }
+  .hero-fade-1 { animation-delay: 0.05s; }
+  .hero-fade-2 { animation-delay: 0.15s; }
+  .hero-fade-3 { animation-delay: 0.30s; }
+  .hero-fade-4 { animation-delay: 0.45s; }
+  .hero-fade-5 { animation-delay: 0.60s; }
+
+  /* Buttons */
+  .btn-primary {
+    background: var(--dat-blue);
+    color: white;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 8px;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    min-height: 44px;
+  }
+  .btn-primary:hover {
+    background: var(--dat-blue-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 25px -10px rgba(14, 146, 212, 0.5);
+  }
+  .btn-secondary {
+    background: white;
+    color: var(--ink);
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    min-height: 44px;
+  }
+  .btn-secondary:hover {
+    border-color: var(--dat-blue);
+    color: var(--dat-blue);
+  }
+
+  /* Cards */
+  .card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.2s;
+  }
+  .card:hover {
+    border-color: rgba(14, 146, 212, 0.3);
+    box-shadow: 0 8px 24px -8px rgba(14, 146, 212, 0.15);
+  }
+
+  /* Browser frame for mockup */
+  .browser-frame {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 25px 50px -12px rgba(10, 22, 40, 0.12), 0 0 0 1px rgba(10, 22, 40, 0.05);
+    overflow: hidden;
+  }
+  .browser-bar {
+    background: linear-gradient(180deg, #F8FAFC 0%, #F1F5F9 100%);
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .browser-dot {
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+  }
+
+  /* Pill */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .pill-blue { background: var(--dat-blue-light); color: var(--dat-blue-dark); }
+  .pill-orange { background: var(--dat-orange-light); color: var(--dat-orange-dark); }
+  .pill-gray { background: var(--bg-subtle); color: var(--muted); border: 1px solid var(--border); }
+  .pill-green { background: #DCFCE7; color: #15803D; }
+  .pill-yellow { background: #FEF3C7; color: #B45309; }
+  .pill-red { background: #FEE2E2; color: #B91C1C; }
+
+  /* Eyebrow */
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--dat-blue);
+  }
+
+  /* Section number */
+  .section-num {
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--dat-orange);
+    letter-spacing: 0.1em;
+  }
+
+  /* Pillar card */
+  .pillar-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+  .pillar-card:hover {
+    border-color: var(--dat-blue);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -20px rgba(14, 146, 212, 0.3);
+  }
+  .pillar-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--dat-blue);
+  }
+  .pillar-card.orange::before { background: var(--dat-orange); }
+
+  .quote-mark {
+    font-family: 'Sora', sans-serif;
+    font-size: 64px;
+    line-height: 1;
+    color: var(--dat-orange);
+    font-weight: 800;
+  }
+
+  section[id] { scroll-margin-top: 80px; }
+
+  /* ==== BU PIPELINE TABS (Level 3 — Multi-Pipeline selector) ==== */
+  .bu-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .bu-tab {
+    padding: 6px 18px;
+    border-radius: 20px;
+    border: 1.5px solid var(--border);
+    background: white;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--body);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Be Vietnam Pro', sans-serif;
+  }
+  .bu-tab:hover {
+    border-color: var(--dat-blue);
+    color: var(--dat-blue);
+  }
+  .bu-tab.active {
+    background: var(--dat-blue);
+    border-color: var(--dat-blue);
+    color: white;
+  }
+  .bu-panel { display: none; animation: fadeInUp 0.3s cubic-bezier(0.4, 0, 0.2, 1) both; }
+  .bu-panel.active { display: block; }
+
+  /* Stat */
+  .stat-num {
+    font-family: 'Sora', sans-serif;
+    font-weight: 800;
+    color: var(--dat-blue-dark);
+    letter-spacing: -0.03em;
+    line-height: 1;
+  }
+
+  /* Hero bg */
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(14, 146, 212, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(245, 130, 32, 0.06) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  /* Logo treatment */
+  .logo-img {
+    height: 28px;
+    width: auto;
+    object-fit: contain;
+  }
+  .logo-img-large {
+    height: 40px;
+    width: auto;
+    object-fit: contain;
+  }
+  .logo-fallback {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logo-img-hero {
+    height: 48px;
+    width: auto;
+    object-fit: contain;
+  }
+
+  /* Portrait */
+  .portrait-wrap {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: var(--dat-blue-light);
+    flex-shrink: 0;
+    border: 3px solid white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  .portrait-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .portrait-wrap .portrait-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--dat-blue);
+    color: white;
+    font-family: 'Sora', sans-serif;
+    font-weight: 800;
+    font-size: 24px;
+    letter-spacing: -0.02em;
+  }
+
+  /* ===== MOBILE RESPONSIVE ===== */
+  @media (max-width: 768px) {
+    /* Type scale */
+    .font-display.text-7xl { font-size: 2.5rem; line-height: 1.05; }
+    .font-display.text-6xl { font-size: 2.125rem; line-height: 1.1; }
+    .font-display.text-5xl { font-size: 1.75rem; line-height: 1.15; }
+    .font-display.text-4xl { font-size: 1.625rem; line-height: 1.2; }
+    .font-display.text-3xl { font-size: 1.375rem; line-height: 1.25; }
+
+    /* Padding */
+    .tab-item { padding: 14px 14px 14px 18px; }
+    .browser-bar { padding: 8px 12px; }
+    .browser-bar .browser-dot { width: 9px; height: 9px; }
+
+    /* Sub-tabs become smaller pills */
+    .sub-tab {
+      padding: 8px 12px;
+      font-size: 12px;
+    }
+    .sub-tab .sub-num {
+      width: 20px; height: 20px; line-height: 20px; font-size: 10px;
+    }
+
+    /* Tab list on mobile: horizontal scroll instead of vertical */
+    .tabs-mobile-horizontal {
+      display: flex;
+      overflow-x: auto;
+      scrollbar-width: none;
+      gap: 8px;
+      padding: 12px;
+      border-bottom: 1px solid var(--border);
+      border-right: none !important;
+    }
+    .tabs-mobile-horizontal::-webkit-scrollbar { display: none; }
+    .tabs-mobile-horizontal .tab-item {
+      flex-shrink: 0;
+      border-left: none !important;
+      border-bottom: 3px solid transparent;
+      padding: 12px 16px;
+      border-radius: 8px;
+      background: var(--bg-subtle);
+      min-width: 140px;
+    }
+    .tabs-mobile-horizontal .tab-item.active {
+      background: var(--dat-blue);
+      border-bottom-color: transparent;
+    }
+    .tabs-mobile-horizontal .tab-item.active .tab-title,
+    .tabs-mobile-horizontal .tab-item.active .tab-number {
+      color: white;
+    }
+    .tabs-mobile-horizontal .tab-item .tab-title {
+      font-size: 13px;
+    }
+    .tabs-mobile-horizontal .tab-item .tab-desc,
+    .tabs-mobile-horizontal .tab-item .tab-arrow,
+    .tabs-mobile-horizontal .tab-item .tab-extra {
+      display: none;
+    }
+
+    /* Hero stats grid */
+    .hero-stats > div { padding-left: 12px; }
+  }
+
+  /* Print niceness */
+  @media print { .no-print { display: none !important; } }
+
+  /* Touch-friendly tap targets everywhere */
+  a, button, .tab-item, .sub-tab {
+    min-height: 36px;
+  }
+</style>
+</head>
+<body class="overflow-x-hidden">
+
+<!-- ============ NAV ============ -->
+<nav class="sticky top-0 z-50 bg-white/85 backdrop-blur-xl border-b border-subtle no-print">
+  <div class="max-w-7xl mx-auto px-4 lg:px-10 h-16 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <!-- Base logo with fallback -->
+      <img src="./images/logo-base.png" alt="Base.vn" class="logo-img">
+      <span class="text-muted text-sm hidden md:inline">·</span>
+      <span class="text-muted text-sm hidden md:inline">Proposal cho</span>
+      <span class="text-ink font-semibold text-sm hidden md:inline">DAT Group</span>
+    </div>
+    <div class="hidden lg:flex items-center gap-8">
+      <a href="#context" class="nav-link" data-nav>Bối cảnh</a>
+      <a href="#challenges" class="nav-link" data-nav>Thách thức</a>
+      <a href="#cos" class="nav-link" data-nav>Tổng quan</a>
+      <a href="#capabilities" class="nav-link" data-nav>Năng lực COS</a>
+      <a href="#kpi" class="nav-link" data-nav>Chỉ số thành công</a>
+    </div>
+    <a href="#cta" class="btn-primary text-sm hidden sm:inline-flex">
+      Trao đổi
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<section id="hero" class="relative overflow-hidden">
+  <div class="hero-bg"></div>
+  <div class="absolute inset-0 bg-grid opacity-50"></div>
+
+  <div class="relative max-w-7xl mx-auto px-4 lg:px-10 pt-16 pb-20 lg:pt-24 lg:pb-32">
+
+    <!-- Partnership lockup -->
+    <div class="hero-fade hero-fade-1 mb-10 flex items-center gap-4 flex-wrap">
+      <div class="flex items-center gap-3 px-4 py-2.5 bg-white rounded-full border border-subtle shadow-sm">
+        <img src="./images/logo-base.png" alt="Base.vn" class="logo-img-hero" style="height:24px">
+        <span class="text-muted text-2xl font-light leading-none">×</span>
+        <img src="./images/logo-dat.png" alt="DAT Group" class="logo-img-hero" style="height:24px"
+             onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex'">
+        <span class="font-display font-bold text-ink" style="display:none;">
+          <span style="color:var(--dat-blue);">D</span><span style="color:var(--dat-orange);">A</span><span style="color:var(--dat-blue);">T</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="hero-fade hero-fade-2">
+      <div class="flex items-center gap-3 mb-6 flex-wrap">
+        <span class="eyebrow">Đề xuất giải pháp</span>
+        <span class="h-px w-12" style="background: var(--dat-orange);"></span>
+        <span class="text-sm font-semibold text-muted">Tháng 06, 2026</span>
+      </div>
+    </div>
+
+    <h1 class="hero-fade hero-fade-3 font-display text-5xl md:text-6xl lg:text-7xl font-extrabold text-ink leading-[1.05] max-w-5xl">
+      DAT Customer<br>
+      Operating <span class="text-dat-blue">System</span><span class="text-dat-orange">.</span>
+    </h1>
+
+    <p class="hero-fade hero-fade-4 mt-7 text-base md:text-xl text-body max-w-2xl leading-relaxed">
+      Không chỉ là một dự án CRM. Đây là chương trình xây dựng năng lực quản trị khách hàng và tăng trưởng cho giai đoạn phát triển tiếp theo của DAT Group.
+    </p>
+
+    <div class="hero-fade hero-fade-4 mt-10 flex flex-wrap items-center gap-3">
+      <a href="#context" class="btn-primary">
+        Bắt đầu khám phá
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+      </a>
+
+    </div>
+
+    <div class="hero-fade hero-fade-5 hero-stats mt-16 lg:mt-24 grid grid-cols-2 md:grid-cols-4 gap-5 lg:gap-10 max-w-4xl">
+      <div class="border-l-2 pl-5" style="border-color: var(--dat-blue);">
+        <div class="stat-num text-3xl md:text-4xl">20<span class="text-dat-orange">+</span></div>
+        <div class="text-xs md:text-sm text-muted mt-2 font-medium">Năm phát triển<br>của DAT Group</div>
+      </div>
+      <div class="border-l-2 pl-5" style="border-color: var(--dat-blue);">
+        <div class="stat-num text-3xl md:text-4xl">4</div>
+        <div class="text-xs md:text-sm text-muted mt-2 font-medium">BU kinh doanh<br>cần chuẩn hoá</div>
+      </div>
+      <div class="border-l-2 pl-5" style="border-color: var(--dat-blue);">
+        <div class="stat-num text-3xl md:text-4xl">5K<span class="text-dat-orange">+</span></div>
+        <div class="text-xs md:text-sm text-muted mt-2 font-medium">Lead / tháng<br>cần điều phối</div>
+      </div>
+      <div class="border-l-2 pl-5" style="border-color: var(--dat-blue);">
+        <div class="stat-num text-3xl md:text-4xl">1</div>
+        <div class="text-xs md:text-sm text-muted mt-2 font-medium">Customer Operating<br>System thống nhất</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ THƯ NGỎ ============ -->
+<section id="letter" class="py-16 lg:py-24 bg-subtle relative overflow-hidden">
+  <div class="absolute inset-0 bg-dots opacity-60"></div>
+  <div class="relative max-w-4xl mx-auto px-4 lg:px-10">
+    <div class="text-center mb-10">
+      <span class="section-num">01 — THƯ NGỎ</span>
+      <h2 class="font-display text-2xl md:text-4xl font-bold text-ink mt-3">
+        Kính gửi Anh Đạt cùng Ban Lãnh đạo <span class="text-dat-blue">DAT GROUP</span>
+      </h2>
+    </div>
+
+    <div class="relative bg-white rounded-2xl p-6 md:p-12 border border-subtle shadow-sm">
+      <div class="quote-mark absolute -top-2 left-6 hidden md:block">"</div>
+
+      <div class="space-y-4 md:space-y-5 text-body leading-relaxed text-[15px] md:text-base">
+        <p>
+          Trước hết, cho phép Nghĩa thay mặt đội ngũ Base.vn gửi lời cảm ơn chân thành tới Anh Đạt và các Anh/Chị trong Ban Lãnh đạo DAT Group đã dành thời gian trao đổi và chia sẻ cởi mở cùng chúng tôi trong suốt quá trình khảo sát hiện trạng vừa qua.
+        </p>
+        <p>
+          Qua các buổi làm việc, điều để lại nhiều ấn tượng nhất với chúng tôi không chỉ là quy mô hoạt động của DAT hôm nay, mà còn là <strong class="text-ink">tư duy xây dựng doanh nghiệp bài bản và bền vững</strong> trong suốt hơn 20 năm phát triển.
+        </p>
+        <p>
+          Cùng với sự tăng trưởng của doanh nghiệp, DAT đã chủ động đầu tư vào nhiều nền tảng công nghệ quan trọng như SAP, CDP, DAT Universal và các ứng dụng nghiệp vụ chuyên biệt để nâng cao năng lực quản trị và vận hành. <strong class="text-ink">Đây là một nền tảng rất giá trị cho giai đoạn phát triển tiếp theo của tập đoàn.</strong>
+        </p>
+        <p>
+          Tuy nhiên, khi quy mô khách hàng ngày càng lớn, hành trình khách hàng ngày càng phức tạp và tốc độ tăng trưởng ngày càng cao, bài toán đặt ra không còn chỉ là quản lý thông tin khách hàng. Thách thức lớn hơn là <strong class="text-ink">làm sao kết nối dữ liệu, quy trình và con người thành một mô hình vận hành thống nhất</strong>, giúp doanh nghiệp khai thác hiệu quả hơn những tài sản đã đầu tư và tạo nền tảng cho tăng trưởng trong tương lai.
+        </p>
+        <p>
+          Chúng tôi tin rằng đây là thời điểm phù hợp để DAT từng bước xây dựng một <strong class="text-dat-blue-dark">Customer Operating System</strong> — nền tảng vận hành khách hàng thống nhất ở quy mô tập đoàn, giúp kết nối dữ liệu, chuẩn hóa hoạt động kinh doanh và nâng cao năng lực điều hành dựa trên dữ liệu thời gian thực.
+        </p>
+        <p>
+          Tài liệu này được xây dựng dựa trên những nội dung khảo sát và định hướng chiến lược mà đội ngũ DAT đã chia sẻ cùng chúng tôi. Mục tiêu không phải là giới thiệu một hệ thống CRM mới, mà là <strong class="text-ink">cùng DAT phác họa một mô hình vận hành khách hàng phù hợp với định hướng tăng trưởng trong những năm tới.</strong>
+        </p>
+        <p>
+          Với tinh thần đó, Base.vn mong muốn được đồng hành cùng DAT Group trong hành trình xây dựng những năng lực vận hành mới và tạo nền tảng cho giai đoạn tăng trưởng tiếp theo của doanh nghiệp.
+        </p>
+      </div>
+
+      <div class="mt-8 md:mt-10 pt-6 md:pt-8 border-t border-subtle flex items-center gap-4 flex-wrap">
+        <div class="portrait-wrap">
+          <img src="./images/portrait-nghia.jpg" alt="Trần Tuấn Anh Nghĩa"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="portrait-fallback" style="display:none">N</div>
+        </div>
+        <div class="flex-1 min-w-[200px]">
+          <div class="font-display font-bold text-ink text-lg">Trần Tuấn Anh Nghĩa</div>
+          <div class="text-muted text-sm mt-1">Phó Tổng Giám đốc · Base.vn</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BỐI CẢNH DAT ============ -->
+<section id="context" class="py-16 lg:py-24">
+  <div class="max-w-7xl mx-auto px-4 lg:px-10">
+    <div class="max-w-3xl mb-12 lg:mb-16">
+      <span class="section-num">02 — BỐI CẢNH</span>
+      <h2 class="font-display text-3xl md:text-5xl font-bold text-ink mt-3 leading-tight">
+        DAT đang đứng trước một câu hỏi <span class="text-dat-blue">quan trọng nhất</span> sau 20 năm.
+      </h2>
+      <p class="mt-5 text-base md:text-lg text-body leading-relaxed">
+        Trong hơn hai thập kỷ phát triển, DAT Group đã trở thành một trong những doanh nghiệp tiên phong trong lĩnh vực tự động hoá, năng lượng và giải pháp công nghiệp tại Việt Nam — vận hành một hệ sinh thái kinh doanh đa dạng với nhiều BU, nhiều mô hình và nhiều điểm chạm khách hàng.
+      </p>
+    </div>
+
+    <!-- 4 BU cards -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-2 lg:gap-4 mb-12 lg:mb-16">
+      <div class="card" style="padding: 14px; border-radius: 12px;">
+        <div class="flex items-center justify-between mb-2 lg:mb-3">
+          <div class="w-8 h-8 lg:w-10 lg:h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background: var(--dat-blue-light);">
+            <svg class="w-4 h-4 lg:w-5 lg:h-5 text-dat-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+          </div>
+          <span class="pill pill-gray" style="font-size:10px; padding: 3px 7px;">BU 01</span>
+        </div>
+        <h3 class="font-display font-bold text-ink text-sm lg:text-lg">Automation</h3>
+        <p class="text-xs text-muted mt-1 lg:mt-2 leading-snug">Tự động hoá công nghiệp · ~27.000 khách hàng B2B</p>
+      </div>
+      <div class="card" style="padding: 14px; border-radius: 12px;">
+        <div class="flex items-center justify-between mb-2 lg:mb-3">
+          <div class="w-8 h-8 lg:w-10 lg:h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background: var(--dat-blue-light);">
+            <svg class="w-4 h-4 lg:w-5 lg:h-5 text-dat-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M5 9l7-7 7 7M5 15l7 7 7-7"/></svg>
+          </div>
+          <span class="pill pill-gray" style="font-size:10px; padding: 3px 7px;">BU 02</span>
+        </div>
+        <h3 class="font-display font-bold text-ink text-sm lg:text-lg">Elevator</h3>
+        <p class="text-xs text-muted mt-1 lg:mt-2 leading-snug">Thang máy · Pipeline Kênh & Dự án</p>
+      </div>
+      <div class="card" style="padding: 14px; border-radius: 12px;">
+        <div class="flex items-center justify-between mb-2 lg:mb-3">
+          <div class="w-8 h-8 lg:w-10 lg:h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background: var(--dat-orange-light);">
+            <svg class="w-4 h-4 lg:w-5 lg:h-5 text-dat-orange" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24"/></svg>
+          </div>
+          <span class="pill pill-orange" style="font-size:10px; padding: 3px 7px;">BU 03</span>
+        </div>
+        <h3 class="font-display font-bold text-ink text-sm lg:text-lg">Energy (Solar)</h3>
+        <p class="text-xs text-muted mt-1 lg:mt-2 leading-snug">Năng lượng mặt trời · Mạng lưới Installer</p>
+      </div>
+      <div class="card" style="padding: 14px; border-radius: 12px;">
+        <div class="flex items-center justify-between mb-2 lg:mb-3">
+          <div class="w-8 h-8 lg:w-10 lg:h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background: var(--dat-blue-light);">
+            <svg class="w-4 h-4 lg:w-5 lg:h-5 text-dat-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V9l7-6 7 6v12M9 21v-6h6v6"/></svg>
+          </div>
+          <span class="pill pill-gray" style="font-size:10px; padding: 3px 7px;">BU 04</span>
+        </div>
+        <h3 class="font-display font-bold text-ink text-sm lg:text-lg">EPC</h3>
+        <p class="text-xs text-muted mt-1 lg:mt-2 leading-snug">Tổng thầu công trình · Dự án dài hạn</p>
+      </div>
+    </div>
+
+    <!-- Existing systems -->
+    <div class="bg-subtle rounded-2xl p-6 lg:p-10 mb-12 lg:mb-16">
+      <div class="flex items-start gap-4 mb-6">
+        <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background: white; border: 1px solid var(--border);">
+          <svg class="w-5 h-5 text-dat-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        </div>
+        <div>
+          <h3 class="font-display font-bold text-ink text-lg">Hệ sinh thái công nghệ DAT đang vận hành</h3>
+          <p class="text-muted text-xs lg:text-sm mt-1">Đây là những tài sản dữ liệu có giá trị lớn — chương trình COS sẽ kế thừa và kết nối các hệ thống này.</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="bg-white rounded-lg p-3 lg:p-4 border border-subtle">
+          <div class="text-xs font-bold text-dat-orange tracking-wider mb-1">ERP</div>
+          <div class="font-semibold text-ink text-sm lg:text-base">SAP Business One</div>
+          <div class="text-xs text-muted mt-1">Đơn hàng, công nợ, bảo hành</div>
+        </div>
+        <div class="bg-white rounded-lg p-3 lg:p-4 border border-subtle">
+          <div class="text-xs font-bold text-dat-orange tracking-wider mb-1">CDP</div>
+          <div class="font-semibold text-ink text-sm lg:text-base">Antsomi CDP</div>
+          <div class="text-xs text-muted mt-1">Định danh khách vãng lai</div>
+        </div>
+        <div class="bg-white rounded-lg p-3 lg:p-4 border border-subtle">
+          <div class="text-xs font-bold text-dat-orange tracking-wider mb-1">CRM</div>
+          <div class="font-semibold text-ink text-sm lg:text-base">CRM tự xây</div>
+          <div class="text-xs text-muted mt-1">Báo giá, đơn hàng nội bộ</div>
+        </div>
+        <div class="bg-white rounded-lg p-3 lg:p-4 border border-subtle">
+          <div class="text-xs font-bold text-dat-orange tracking-wider mb-1">PORTAL</div>
+          <div class="font-semibold text-ink text-sm lg:text-base">DAT Universal</div>
+          <div class="text-xs text-muted mt-1">Cổng đối tác và khách hàng</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Big question -->
+    <div class="relative rounded-2xl p-8 lg:p-16 overflow-hidden" style="background: linear-gradient(135deg, var(--dat-blue-darker) 0%, var(--dat-blue-dark) 100%);">
+      <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 24px 24px;"></div>
+      <div class="absolute top-0 right-0 w-48 h-48 rounded-full opacity-20 -translate-y-1/3 translate-x-1/3" style="background: var(--dat-orange);"></div>
+
+      <div class="relative max-w-3xl">
+        <div class="quote-mark text-white opacity-70 mb-2">"</div>
+        <p class="font-display text-xl md:text-3xl lg:text-4xl font-bold text-white leading-tight">
+          Liệu năng lực quản trị khách hàng hiện tại có còn đủ để hỗ trợ cho những mục tiêu <span class="text-dat-orange">tăng trưởng trong 20 năm tiếp theo</span>?
+        </p>
+        <div class="mt-6 lg:mt-8 text-white/80 text-xs lg:text-sm">— Câu hỏi đặt ra cho giai đoạn phát triển mới của DAT Group</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4 THÁCH THỨC (TABS) ============ -->
+<section id="challenges" class="py-16 lg:py-24 bg-subtle relative">
+  <div class="max-w-7xl mx-auto px-4 lg:px-10">
+    <div class="max-w-3xl mb-10 lg:mb-16">
+      <span class="section-num">03 — THÁCH THỨC HIỆN TẠI</span>
+      <h2 class="font-display text-3xl md:text-5xl font-bold text-ink mt-3 leading-tight">
+        Bốn nhóm thách thức <span class="text-dat-blue">trong quản trị khách hàng</span> ở quy mô tập đoàn.
+      </h2>
+      <p class="mt-5 text-base lg:text-lg text-body leading-relaxed">
+        Thông qua các buổi khảo sát và làm việc với Ban Điều hành, các đơn vị kinh doanh và bộ phận CNTT, chúng tôi ghi nhận <strong class="text-ink">04 nhóm thách thức trọng yếu</strong> trong giai đoạn phát triển tiếp theo của DAT.
+      </p>
+      <div class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-dat-orange">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 5l7 7-7 7"/></svg>
+        <span>Tap/click vào từng thách thức để xem chi tiết</span>
+      </div>
+    </div>
+
+    <!-- Tabs container -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-0 bg-white rounded-2xl border border-subtle overflow-hidden shadow-sm">
+
+      <!-- Left/Top: tab list -->
+      <div class="lg:col-span-5 lg:border-r border-subtle tabs-mobile-horizontal" data-tabs="challenges">
+        <div class="tab-item active" data-tab="challenges" data-target="ch1">
+          <div class="flex items-start gap-3 lg:gap-4">
+            <span class="tab-number font-display text-xl lg:text-2xl">01</span>
+            <div class="flex-1">
+              <div class="tab-title text-sm lg:text-lg">Quản trị hành trình khách hàng đa kênh</div>
+              <div class="tab-desc text-xs lg:text-sm text-muted mt-1.5">Dữ liệu phân mảnh, tốc độ phản hồi không đồng nhất, khó đo lường hiệu quả từng nguồn.</div>
+            </div>
+            <svg class="tab-arrow w-5 h-5 mt-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+        <div class="tab-item" data-tab="challenges" data-target="ch2">
+          <div class="flex items-start gap-3 lg:gap-4">
+            <span class="tab-number font-display text-xl lg:text-2xl">02</span>
+            <div class="flex-1">
+              <div class="tab-title text-sm lg:text-lg">Mở rộng hiệu quả bán hàng ở quy mô lớn</div>
+              <div class="tab-desc text-xs lg:text-sm text-muted mt-1.5">Mỗi BU vận hành theo cách riêng, phương pháp thành công khó nhân rộng toàn tổ chức.</div>
+            </div>
+            <svg class="tab-arrow w-5 h-5 mt-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+        <div class="tab-item" data-tab="challenges" data-target="ch3">
+          <div class="flex items-start gap-3 lg:gap-4">
+            <span class="tab-number font-display text-xl lg:text-2xl">03</span>
+            <div class="flex-1">
+              <div class="tab-title text-sm lg:text-lg">Khai thác tri thức khách hàng quy mô tập đoàn</div>
+              <div class="tab-desc text-xs lg:text-sm text-muted mt-1.5">Một khách hàng đóng nhiều vai trò — dữ liệu rải rác, khó chuyển hoá thành tri thức.</div>
+            </div>
+            <svg class="tab-arrow w-5 h-5 mt-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+        <div class="tab-item" data-tab="challenges" data-target="ch4">
+          <div class="flex items-start gap-3 lg:gap-4">
+            <span class="tab-number font-display text-xl lg:text-2xl">04</span>
+            <div class="flex-1">
+              <div class="tab-title text-sm lg:text-lg">Điều hành dựa trên dữ liệu thời gian thực</div>
+              <div class="tab-desc text-xs lg:text-sm text-muted mt-1.5">Dữ liệu phân tán, báo cáo trễ — BLĐ cần quan sát hoạt động kinh doanh theo thời gian thực.</div>
+            </div>
+            <svg class="tab-arrow w-5 h-5 mt-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right/Bottom: tab content -->
+      <div class="lg:col-span-7 p-5 lg:p-10 bg-subtle/30">
+
+        <div class="tab-panel active" data-panel="challenges" data-id="ch1">
+          <div class="browser-frame mb-5">
+            <div class="browser-bar">
+              <div class="browser-dot" style="background: #FF5F57;"></div>
+              <div class="browser-dot" style="background: #FEBC2E;"></div>
+              <div class="browser-dot" style="background: #28C840;"></div>
+              <div class="ml-3 text-xs text-muted">Hành trình khách hàng hiện tại · Phân mảnh</div>
+            </div>
+            <div class="p-4 lg:p-5 bg-white">
+              <div class="grid grid-cols-3 gap-2 mb-3">
+                <div class="bg-subtle border border-subtle rounded-lg p-2 lg:p-3 text-center">
+                  <div class="text-xs font-semibold text-ink">Website</div>
+                  <div class="text-[10px] text-muted mt-0.5">CDP Antsomi</div>
+                </div>
+                <div class="bg-subtle border border-subtle rounded-lg p-2 lg:p-3 text-center">
+                  <div class="text-xs font-semibold text-ink">Facebook / Zalo</div>
+                  <div class="text-[10px] text-muted mt-0.5">Inbox cá nhân</div>
+                </div>
+                <div class="bg-subtle border border-subtle rounded-lg p-2 lg:p-3 text-center">
+                  <div class="text-xs font-semibold text-ink">DAT Universal</div>
+                  <div class="text-[10px] text-muted mt-0.5">Cổng riêng</div>
+                </div>
+                <div class="bg-subtle border border-subtle rounded-lg p-2 lg:p-3 text-center">
+                  <div class="text-xs font-semibold text-ink">Webinar / Sự kiện</div>
+                  <div class="text-[10px] text-muted mt-0.5">Excel xuất tay</div>
+                </div>
+                <div class="bg-subtle border border-subtle rounded-lg p-2 lg:p-3 text-center">
+                  <div class="text-xs font-semibold text-ink">Sales trực tiếp</div>
+                  <div class="text-[10px] text-muted mt-0.5">CRM tự xây</div>
+                </div>
+                <div class="bg-subtle border border-subtle rounded-lg p-2 lg:p-3 text-center">
+                  <div class="text-xs font-semibold text-ink">Đối tác / Affiliate</div>
+                  <div class="text-[10px] text-muted mt-0.5">Không đồng bộ</div>
+                </div>
+              </div>
+              <div class="border-t border-dashed border-subtle pt-3 flex items-center justify-between flex-wrap gap-2">
+                <div class="flex items-center gap-2">
+                  <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                  <span class="text-xs text-body">Dữ liệu không liên kết</span>
+                </div>
+                <span class="pill pill-red">Lead bị mất hoặc trùng</span>
+              </div>
+            </div>
+          </div>
+          <h3 class="font-display text-xl lg:text-2xl font-bold text-ink mb-3">Quản trị hành trình khách hàng đa kênh</h3>
+          <p class="text-body leading-relaxed mb-3 text-sm lg:text-base">
+            Khách hàng tương tác với DAT qua nhiều kênh — Website, Facebook, Zalo, Webinar, DAT Universal, sự kiện chuyên ngành và đội ngũ kinh doanh trực tiếp. Dù DAT đã đầu tư nhiều nền tảng, <strong class="text-ink">dữ liệu và lịch sử tương tác vẫn lưu trên nhiều hệ thống khác nhau</strong>, dẫn đến:
+          </p>
+          <ul class="space-y-2 text-body text-sm lg:text-[15px]">
+            <li class="flex gap-3"><span class="text-dat-orange font-bold mt-0.5">•</span><span>Không nhận diện đầy đủ hành trình khách hàng từ Marketing đến Sales.</span></li>
+            <li class="flex gap-3"><span class="text-dat-orange font-bold mt-0.5">•</span><span>Khó kế thừa dữ liệu giữa các điểm chạm — khách phải khai báo lại nhiều lần.</span></li>
+            <li class="flex gap-3"><span class="text-dat-orange font-bold mt-0.5">•</span><span>Tốc độ phản hồi không đồng nhất trên toàn hệ thống.</span></li>
+            <li class="flex gap-3"><span class="text-dat-orange font-bold mt-0.5">•</span><span>Không đo lường chính xác hiệu quả của từng nguồn khách hàng.</span></li>
+          </ul>
+        </div>
+
+        <div class="tab-panel" data-panel="challenges" data-id="ch2">
+          <div class="browser-frame mb-5">
+            <div class="browser-bar">
+              <div class="browser-dot" style="background: #FF5F57;"></div>
+              <div class="browser-dot" style="background: #FEBC2E;"></div>
+              <div class="browser-dot" style="background: #28C840;"></div>
+              <div class="ml-3 text-xs text-muted">Mở rộng quy mô bán hàng · Mỗi BU một cách</div>
+            </div>
+            <div class="p-4 lg:p-5 bg-white">
+              <div class="space-y-2">
+                <div class="flex items-center justify-between p-2.5 rounded-lg border border-subtle bg-subtle/50 flex-wrap gap-2">
+                  <div class="flex items-center gap-2"><span class="pill pill-blue">Automation</span><span class="text-xs text-muted">Quy trình riêng</span></div>
+                  <span class="text-xs text-muted">CRM tự xây · Excel</span>
+                </div>
+                <div class="flex items-center justify-between p-2.5 rounded-lg border border-subtle bg-subtle/50 flex-wrap gap-2">
+                  <div class="flex items-center gap-2"><span class="pill pill-blue">Elevator</span><span class="text-xs text-muted">Tách kênh & dự án</span></div>
+                  <span class="text-xs text-muted">File chia sẻ Zalo</span>
+                </div>
+                <div class="flex items-center justify-between p-2.5 rounded-lg border border-subtle bg-subtle/50 flex-wrap gap-2">
+                  <div class="flex items-center gap-2"><span class="pill pill-orange">Energy</span><span class="text-xs text-muted">Mạng lưới Installer</span></div>
+                  <span class="text-xs text-muted">Sheet riêng từng team</span>
+                </div>
+                <div class="flex items-center justify-between p-2.5 rounded-lg border border-subtle bg-subtle/50 flex-wrap gap-2">
+                  <div class="flex items-center gap-2"><span class="pill pill-blue">EPC</span><span class="text-xs text-muted">Theo đuổi dự án lớn</span></div>
+                  <span class="text-xs text-muted">PM tool + email</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <h3 class="font-display text-xl lg:text-2xl font-bold text-ink mb-3">Mở rộng hiệu quả bán hàng ở quy mô lớn</h3>
+          <p class="text-body leading-relaxed mb-3 text-sm lg:text-base">
+            DAT sở hữu đội ngũ giàu kinh nghiệm và những phương pháp tiếp cận thị trường đã được kiểm chứng. Tuy nhiên khi mở rộng quy mô nhân sự, khách hàng và lĩnh vực kinh doanh, <strong class="text-ink">duy trì chất lượng thực thi bán hàng đồng nhất</strong> trở nên ngày càng khó khăn.
+          </p>
+          <ul class="space-y-2 text-body text-sm lg:text-[15px]">
+            <li class="flex gap-3"><span class="text-dat-orange font-bold mt-0.5">•</span><span>Mỗi BU có quy trình đặc thù — quản trị cơ hội theo nhiều cách khác nhau.</span></li>
+            <li class="flex gap-3"><span class="text-dat-orange font-bold mt-0.5">•</span><span>Hệ thống CRM tự xây đã lâu năm, khó nâng cấp theo nhu cầu mới.</span></li>
+            <li class="flex gap-3"><span class="text-dat-orange font-bold mt-0.5">•</span><span>Phương pháp bán hàng thành công ở một BU chưa nhân rộng được sang các BU khác.</span></li>
+            <li class="flex gap-3"><span class="text-dat-orange font-bold mt-0.5">•</span><span>Cần chuẩn hóa cách thức quản trị cơ hội kinh doanh trong khi vẫn đảm bảo tính linh hoạt cho từng đơn vị.</span></li>
+          </ul>
+        </div>
+
+        <div class="tab-panel" data-panel="challenges" data-id="ch3">
+          <div class="browser-frame mb-5">
+            <div class="browser-bar">
+              <div class="browser-dot" style="background: #FF5F57;"></div>
+              <div class="browser-dot" style="background: #FEBC2E;"></div>
+              <div class="browser-dot" style="background: #28C840;"></div>
+              <div class="ml-3 text-xs text-muted">Một khách hàng · Nhiều vai trò · Dữ liệu rải rác</div>
+            </div>
+            <div class="p-4 lg:p-5 bg-white">
+              <div class="flex flex-col items-center">
+                <div class="w-12 h-12 rounded-full flex items-center justify-center bg-dat-blue text-white font-bold mb-2">A</div>
+                <div class="text-xs font-semibold text-ink mb-1">Công ty A</div>
+                <div class="text-[11px] text-muted mb-3">Đa vai trò trong hệ sinh thái DAT</div>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full">
+                  <div class="text-center p-2 rounded-lg border border-subtle bg-subtle/50">
+                    <div class="text-xs font-semibold text-ink">Khách hàng</div>
+                    <div class="text-[10px] text-dat-blue mt-1">SAP</div>
+                  </div>
+                  <div class="text-center p-2 rounded-lg border border-subtle bg-subtle/50">
+                    <div class="text-xs font-semibold text-ink">Đối tác</div>
+                    <div class="text-[10px] text-dat-blue mt-1">Universal</div>
+                  </div>
+                  <div class="text-center p-2 rounded-lg border border-subtle bg-subtle/50">
+                    <div class="text-xs font-semibold text-ink">Nhà thầu</div>
+                    <div class="text-[10px] text-dat-blue mt-1">CRM</div>
+                  </div>
+                  <div class="text-center p-2 rounded-lg border border-subtle bg-subtle/50">
+                    <div class="text-xs font-semibold text-ink">Cộng tác viên</div>
+                    <div class="text-[10px] text-dat-blue mt-1">Excel</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <h3 class="font-display text-xl lg:text-2xl font-bold text-ink mb-3">Khai thác tri thức khách hàng quy mô tập đoàn</h3>
+          <p class="text-body leading-relaxed mb-3 text-sm lg:text-base">
+            Điểm đặc thù của DAT không nằm ở số lượng khách hàng — mà ở <strong class="text-ink">độ phức tạp của hệ sinh thái quan hệ kinh doanh</strong>. Một doanh nghiệp có thể đồng thời là khách hàng, đối tác, nhà thầu, đơn vị tích hợp hoặc cộng tác viên phát triển thị trường.
+          </p>
+          <ul class="space-y-2 text-body text-sm lg:text-[15px]">
+            <li class="flex gap-3"><span class="text-dat-orange font-bold mt-0.5">•</span><span>Dữ liệu giao dịch, đơn hàng, bảo hành, công nợ và tương tác kinh doanh nằm trên nhiều hệ thống vận hành khác nhau.</span></li>
+            <li class="flex gap-3"><span class="text-dat-orange font-bold mt-0.5">•</span><span>Thách thức không còn là <em>lưu trữ</em> thông tin khách hàng — mà là <em>chuyển hoá</em> dữ liệu và các mối quan hệ thành tri thức phục vụ kinh doanh.</span></li>
+            <li class="flex gap-3"><span class="text-dat-orange font-bold mt-0.5">•</span><span>Khó tận dụng cơ hội cross-sell / up-sell giữa các BU trên cùng một tệp khách hàng.</span></li>
+          </ul>
+        </div>
+
+        <div class="tab-panel" data-panel="challenges" data-id="ch4">
+          <div class="browser-frame mb-5">
+            <div class="browser-bar">
+              <div class="browser-dot" style="background: #FF5F57;"></div>
+              <div class="browser-dot" style="background: #FEBC2E;"></div>
+              <div class="browser-dot" style="background: #28C840;"></div>
+              <div class="ml-3 text-xs text-muted">Báo cáo điều hành · Trễ và thủ công</div>
+            </div>
+            <div class="p-4 lg:p-5 bg-white">
+              <div class="grid grid-cols-2 gap-2">
+                <div class="p-2.5 rounded-lg border border-subtle bg-subtle/50">
+                  <div class="flex items-center justify-between mb-1.5"><span class="text-xs font-semibold text-ink">Doanh thu MTD</span><span class="pill pill-red text-[10px]">Trễ</span></div>
+                  <div class="font-display font-bold text-xl text-ink">—</div>
+                  <div class="text-[10px] text-muted mt-1">Chờ tổng hợp 4 BU</div>
+                </div>
+                <div class="p-2.5 rounded-lg border border-subtle bg-subtle/50">
+                  <div class="flex items-center justify-between mb-1.5"><span class="text-xs font-semibold text-ink">Pipeline</span><span class="pill pill-yellow text-[10px]">Tay</span></div>
+                  <div class="font-display font-bold text-xl text-ink">—</div>
+                  <div class="text-[10px] text-muted mt-1">Excel mỗi tuần</div>
+                </div>
+                <div class="p-2.5 rounded-lg border border-subtle bg-subtle/50">
+                  <div class="flex items-center justify-between mb-1.5"><span class="text-xs font-semibold text-ink">Win rate</span><span class="pill pill-red text-[10px]">Không có</span></div>
+                  <div class="font-display font-bold text-xl text-ink">—</div>
+                  <div class="text-[10px] text-muted mt-1">Không đo tự động</div>
+                </div>
+                <div class="p-2.5 rounded-lg border border-subtle bg-subtle/50">
+                  <div class="flex items-center justify-between mb-1.5"><span class="text-xs font-semibold text-ink">Sales activity</span><span class="pill pill-red text-[10px]">Cảm tính</span></div>
+                  <div class="font-display font-bold text-xl text-ink">—</div>
+                  <div class="text-[10px] text-muted mt-1">Mỗi BU 1 định nghĩa</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <h3 class="font-display text-xl lg:text-2xl font-bold text-ink mb-3">Điều hành dựa trên dữ liệu thời gian thực</h3>
+          <p class="text-body leading-relaxed mb-3 text-sm lg:text-base">
+            DAT đã đầu tư đáng kể vào các hệ thống quản trị như SAP, CDP, CRM tự xây, DAT Universal. Tuy nhiên dữ liệu vẫn phân tán và cần nhiều bước tổng hợp. Trong bối cảnh thị trường thay đổi nhanh, <strong class="text-ink">Ban Điều hành cần nhiều hơn các báo cáo định kỳ</strong>.
+          </p>
+          <ul class="space-y-2 text-body text-sm lg:text-[15px]">
+            <li class="flex gap-3"><span class="text-dat-orange font-bold mt-0.5">•</span><span>Dữ liệu phân tán trên nhiều nền tảng, cần nhiều bước tổng hợp trước khi phục vụ điều hành.</span></li>
+            <li class="flex gap-3"><span class="text-dat-orange font-bold mt-0.5">•</span><span>Báo cáo trễ — khi BLĐ thấy số liệu thì cơ hội can thiệp đã qua.</span></li>
+            <li class="flex gap-3"><span class="text-dat-orange font-bold mt-0.5">•</span><span>Cần khả năng quan sát hoạt động kinh doanh theo thời gian thực và phát hiện sớm các dấu hiệu bất thường.</span></li>
+            <li class="flex gap-3"><span class="text-dat-orange font-bold mt-0.5">•</span><span>Quyết định đang dựa trên kết quả quá khứ — thay vì dữ liệu hiện tại đang xảy ra.</span></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COS OVERVIEW ============ -->
+<section id="cos" class="py-16 lg:py-24 relative overflow-hidden">
+  <div class="absolute inset-0 bg-grid opacity-50"></div>
+  <div class="relative max-w-7xl mx-auto px-4 lg:px-10">
+    <div class="text-center max-w-3xl mx-auto mb-12 lg:mb-16">
+      <span class="section-num">04 — GIẢI PHÁP TỔNG QUAN</span>
+      <h2 class="font-display text-3xl md:text-5xl font-bold text-ink mt-3 leading-tight">
+        Đây không đơn thuần<br>là <span class="text-muted line-through decoration-2">một dự án CRM</span>.
+      </h2>
+      <p class="mt-5 text-base lg:text-lg text-body leading-relaxed">
+        Đây là <strong class="text-dat-blue-dark">nền tảng quản trị khách hàng thống nhất</strong> giúp kết nối dữ liệu, quy trình, con người và tri thức khách hàng trên toàn doanh nghiệp.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6 max-w-5xl mx-auto">
+      <div class="pillar-card">
+        <div class="flex items-start justify-between mb-3">
+          <div class="w-11 h-11 rounded-lg flex items-center justify-center" style="background: var(--dat-blue-light);">
+            <svg class="w-5 h-5 text-dat-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </div>
+          <span class="font-display text-2xl font-extrabold text-dat-blue/20">01</span>
+        </div>
+        <div class="text-xs font-semibold text-dat-blue uppercase tracking-wider mb-1">Acquisition &amp; Engagement</div>
+        <h3 class="font-display font-bold text-ink text-lg mb-2">Thu hút, nhận diện và tương tác khách hàng</h3>
+        <p class="text-sm text-muted leading-relaxed">Hội tụ Lead từ mọi kênh, định danh xuyên hành trình và tương tác đa kênh trên một giao diện.</p>
+      </div>
+
+      <div class="pillar-card">
+        <div class="flex items-start justify-between mb-3">
+          <div class="w-11 h-11 rounded-lg flex items-center justify-center" style="background: var(--dat-blue-light);">
+            <svg class="w-5 h-5 text-dat-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 14l4-4 4 4 5-5"/></svg>
+          </div>
+          <span class="font-display text-2xl font-extrabold text-dat-blue/20">02</span>
+        </div>
+        <div class="text-xs font-semibold text-dat-blue uppercase tracking-wider mb-1">Development &amp; Growth</div>
+        <h3 class="font-display font-bold text-ink text-lg mb-2">Biến khách hàng tiềm năng thành doanh thu</h3>
+        <p class="text-sm text-muted leading-relaxed">Chuẩn hoá pipeline cho từng BU, nhân bản phương pháp bán hàng thành công.</p>
+      </div>
+
+      <div class="pillar-card orange">
+        <div class="flex items-start justify-between mb-3">
+          <div class="w-11 h-11 rounded-lg flex items-center justify-center" style="background: var(--dat-orange-light);">
+            <svg class="w-5 h-5 text-dat-orange" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          </div>
+          <span class="font-display text-2xl font-extrabold text-dat-orange/20">03</span>
+        </div>
+        <div class="text-xs font-semibold text-dat-orange uppercase tracking-wider mb-1">Intelligence &amp; Insight</div>
+        <h3 class="font-display font-bold text-ink text-lg mb-2">Xây dựng tri thức khách hàng quy mô tập đoàn</h3>
+        <p class="text-sm text-muted leading-relaxed">Hợp nhất "One Customer — One View" từ SAP, CDP, DAT Universal. Quản trị quan hệ với AI Copilot.</p>
+      </div>
+
+      <div class="pillar-card">
+        <div class="flex items-start justify-between mb-3">
+          <div class="w-11 h-11 rounded-lg flex items-center justify-center" style="background: var(--dat-blue-light);">
+            <svg class="w-5 h-5 text-dat-blue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          </div>
+          <span class="font-display text-2xl font-extrabold text-dat-blue/20">04</span>
+        </div>
+        <div class="text-xs font-semibold text-dat-blue uppercase tracking-wider mb-1">Executive Visibility</div>
+        <h3 class="font-display font-bold text-ink text-lg mb-2">Điều hành trên dữ liệu thời gian thực</h3>
+        <p class="text-sm text-muted leading-relaxed">Leading &amp; Lagging KPIs trong một dashboard. Open API kết nối Data Warehouse cho BI và AI.</p>
+      </div>
+    </div>
+
+    <div class="mt-10 text-center">
+      <div class="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-dat-blue-light border border-dat-blue/20">
+        <div class="w-2 h-2 rounded-full bg-dat-blue animate-pulse"></div>
+        <span class="font-display font-semibold text-dat-blue-dark text-xs md:text-sm">Một nền tảng · Bốn năng lực · Một nguồn dữ liệu</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4 NĂNG LỰC COS (NESTED TABS) ============ -->
+<section id="capabilities" class="py-16 lg:py-24 bg-subtle relative">
+  <div class="max-w-7xl mx-auto px-4 lg:px-10">
+    <div class="max-w-3xl mb-10 lg:mb-16">
+      <span class="section-num">05 — BỐN NĂNG LỰC CỐT LÕI</span>
+      <h2 class="font-display text-3xl md:text-5xl font-bold text-ink mt-3 leading-tight">
+        Chi tiết về<br>
+        <span class="text-dat-blue">DAT Customer Operating System.</span>
+      </h2>
+      <p class="mt-5 text-base lg:text-lg text-body leading-relaxed">
+        Mỗi năng lực được thiết kế để giải quyết một thách thức cụ thể của DAT, đồng thời kết nối liền mạch với các năng lực còn lại trong một hệ thống thống nhất.
+      </p>
+      <div class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-dat-orange">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 5l7 7-7 7"/></svg>
+        <span>Click vào năng lực, sau đó click vào từng tính năng để khám phá</span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-0 bg-white rounded-2xl border border-subtle overflow-hidden shadow-sm">
+
+      <!-- LEVEL 1: 4 năng lực bên trái -->
+      <div class="lg:col-span-4 lg:border-r border-subtle tabs-mobile-horizontal" data-tabs="cap">
+        <div class="tab-item active" data-tab="cap" data-target="cap1">
+          <div class="flex items-start gap-3 lg:gap-4">
+            <span class="tab-number font-display text-xl lg:text-2xl">01</span>
+            <div class="flex-1">
+              <div class="tab-title text-sm lg:text-base">Acquisition &amp; Engagement</div>
+              <div class="tab-desc text-xs text-muted mt-1.5">Thu hút, nhận diện, tương tác KH đa kênh</div>
+            </div>
+            <svg class="tab-arrow w-4 h-4 mt-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+        <div class="tab-item" data-tab="cap" data-target="cap2">
+          <div class="flex items-start gap-3 lg:gap-4">
+            <span class="tab-number font-display text-xl lg:text-2xl">02</span>
+            <div class="flex-1">
+              <div class="tab-title text-sm lg:text-base">Development &amp; Growth</div>
+              <div class="tab-desc text-xs text-muted mt-1.5">Chuyển hoá Lead thành doanh thu</div>
+            </div>
+            <svg class="tab-arrow w-4 h-4 mt-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+        <div class="tab-item" data-tab="cap" data-target="cap3">
+          <div class="flex items-start gap-3 lg:gap-4">
+            <span class="tab-number font-display text-xl lg:text-2xl">03</span>
+            <div class="flex-1">
+              <div class="tab-title text-sm lg:text-base">Intelligence &amp; Insight</div>
+              <div class="tab-desc text-xs text-muted mt-1.5">Tri thức khách hàng quy mô tập đoàn</div>
+            </div>
+            <svg class="tab-arrow w-4 h-4 mt-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+        <div class="tab-item" data-tab="cap" data-target="cap4">
+          <div class="flex items-start gap-3 lg:gap-4">
+            <span class="tab-number font-display text-xl lg:text-2xl">04</span>
+            <div class="flex-1">
+              <div class="tab-title text-sm lg:text-base">Executive Visibility</div>
+              <div class="tab-desc text-xs text-muted mt-1.5">Điều hành bằng dữ liệu thời gian thực</div>
+            </div>
+            <svg class="tab-arrow w-4 h-4 mt-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- LEVEL 2: Sub-tabs + content -->
+      <div class="lg:col-span-8 p-5 lg:p-8 bg-subtle/30">
+
+        <!-- ============ NĂNG LỰC 01 ============ -->
+        <div class="tab-panel active" data-panel="cap" data-id="cap1">
+          <div class="sub-tabs" data-tabs="cap1-sub">
+            <button class="sub-tab active" data-tab="cap1-sub" data-target="cap1-1"><span class="sub-num">1</span>Lead Pool</button>
+            <button class="sub-tab" data-tab="cap1-sub" data-target="cap1-2"><span class="sub-num">2</span>CDP Antsomi</button>
+            <button class="sub-tab" data-tab="cap1-sub" data-target="cap1-3"><span class="sub-num">3</span>Event Management</button>
+            <button class="sub-tab" data-tab="cap1-sub" data-target="cap1-4"><span class="sub-num">4</span>Lead Routing & SLA</button>
+            <button class="sub-tab" data-tab="cap1-sub" data-target="cap1-5"><span class="sub-num">5</span>Base AI & Engagement</button>
+            <button class="sub-tab" data-tab="cap1-sub" data-target="cap1-6"><span class="sub-num">6</span>Tổng đài</button>
+          </div>
+
+          <!-- ── SUB 1: Lead Pool ── -->
+          <div class="sub-panel active" data-panel="cap1-sub" data-id="cap1-1">
+            <div class="img-wrap mb-5">
+              <img src="./images/01-1-lead-pool.png" alt="Lead Pool đa kênh" loading="lazy"
+                   onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+              <div class="img-placeholder">
+                <div class="ph-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E92D4" stroke-width="2"><path d="M3 3h18l-7 8v6l-4 2v-8z"/></svg></div>
+                <p class="ph-filename">01-1-lead-pool.png</p>
+                <p class="ph-hint">Screenshot Lead Pool tập trung — thấy rõ Lead từ nhiều nguồn đổ về (Facebook, Google, Zalo, Website...), cột nguồn, trạng thái, Sales phụ trách</p>
+                <span class="ph-tag">Năng lực 01 · Lead Pool</span>
+              </div>
+            </div>
+            <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">Trung tâm Lead tập trung — Một Pool, mọi nguồn</h3>
+            <p class="text-sm lg:text-base text-body leading-relaxed mb-4">
+              DAT Group đang tiếp nhận <strong class="text-ink">2.000–5.000 Lead mỗi tháng</strong> từ nhiều kênh khác nhau. Thay vì để dữ liệu nằm rải rác trên Zalo cá nhân hay Excel, tất cả Lead được đổ về một <strong class="text-ink">Lead Pool duy nhất</strong> trên Base CRM — sẵn sàng cho việc làm giàu dữ liệu và phân bổ.
+            </p>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
+              <div class="bg-dat-blue-lighter rounded-lg p-3 border border-dat-blue/10 text-center text-xs">
+                <div class="font-bold text-dat-blue mb-1">Facebook / TikTok</div>
+                <div class="text-muted">Lead Ads, Messenger</div>
+              </div>
+              <div class="bg-dat-blue-lighter rounded-lg p-3 border border-dat-blue/10 text-center text-xs">
+                <div class="font-bold text-dat-blue mb-1">Google / LinkedIn</div>
+                <div class="text-muted">Form, Landing page</div>
+              </div>
+              <div class="bg-dat-blue-lighter rounded-lg p-3 border border-dat-blue/10 text-center text-xs">
+                <div class="font-bold text-dat-blue mb-1">Website / Zalo OA</div>
+                <div class="text-muted">Chat, đăng ký form</div>
+              </div>
+              <div class="bg-dat-blue-lighter rounded-lg p-3 border border-dat-blue/10 text-center text-xs">
+                <div class="font-bold text-dat-blue mb-1">Webinar / Sự kiện</div>
+                <div class="text-muted">Offline &amp; Online</div>
+              </div>
+              <div class="bg-dat-blue-lighter rounded-lg p-3 border border-dat-blue/10 text-center text-xs">
+                <div class="font-bold text-dat-blue mb-1">DAT Universal</div>
+                <div class="text-muted">Cổng đối tác &amp; KH</div>
+              </div>
+              <div class="bg-dat-blue-lighter rounded-lg p-3 border border-dat-blue/10 text-center text-xs">
+                <div class="font-bold text-dat-blue mb-1">Đội Sales trực tiếp</div>
+                <div class="text-muted">Nhập tay / Import</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── SUB 2: CDP Antsomi ── -->
+          <div class="sub-panel" data-panel="cap1-sub" data-id="cap1-2">
+            <div class="img-wrap mb-5">
+              <img src="./images/01-2-cdp-antsomi.png" alt="CDP Antsomi Integration" loading="lazy"
+                   onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+              <div class="img-placeholder">
+                <div class="ph-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E92D4" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
+                <p class="ph-filename">01-2-cdp-antsomi.png</p>
+                <p class="ph-hint">Sơ đồ hoặc screenshot luồng dữ liệu từ CDP Antsomi → Base CRM: visitor được định danh bằng cookie → convert thành Lead kèm đầy đủ behavioral data</p>
+                <span class="ph-tag">Năng lực 01 · CDP Antsomi</span>
+              </div>
+            </div>
+            <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">Hợp nhất dữ liệu với CDP Antsomi</h3>
+            <p class="text-sm lg:text-base text-body leading-relaxed mb-4">
+              Khách vãng lai trên Website/App của DAT được <strong class="text-ink">định danh qua cookie và hành vi duyệt web</strong> bởi Antsomi CDP. Khi họ chuyển đổi thành Lead, toàn bộ profile hành vi được đồng bộ tự động về Base CRM.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div class="bg-dat-blue-lighter rounded-xl p-4 border border-dat-blue/10">
+                <div class="text-xs font-bold text-dat-blue uppercase tracking-wider mb-2">Antsomi CDP làm gì</div>
+                <p class="text-sm text-body leading-relaxed">Theo dõi hành trình của visitor: đã xem trang nào, click vào sản phẩm gì, thời gian ở lại bao lâu — <strong class="text-ink">định danh ngay cả khi khách chưa để lại thông tin liên hệ</strong>.</p>
+              </div>
+              <div class="bg-dat-blue-lighter rounded-xl p-4 border border-dat-blue/10">
+                <div class="text-xs font-bold text-dat-blue uppercase tracking-wider mb-2">Khi Lead vào Base CRM</div>
+                <p class="text-sm text-body leading-relaxed">Sales nhìn thấy ngay khách hàng <strong class="text-ink">đã xem gì, click gì, tương tác ra sao</strong> trước khi gặp — cá nhân hóa cuộc hội thoại đầu tiên thay vì hỏi lại từ đầu.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── SUB 3: Event Management ── -->
+          <div class="sub-panel" data-panel="cap1-sub" data-id="cap1-3">
+            <div class="img-wrap mb-5">
+              <img src="./images/01-3-event-management.png" alt="Event Management" loading="lazy"
+                   onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+              <div class="img-placeholder">
+                <div class="ph-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E92D4" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+                <p class="ph-filename">01-3-event-management.png</p>
+                <p class="ph-hint">Screenshot mini landing page đăng ký sự kiện (Webinar / Workshop) được tạo trong Base — hoặc màn hình danh sách người đăng ký tự động đồng bộ vào phễu Lead</p>
+                <span class="ph-tag">Năng lực 01 · Event Management</span>
+              </div>
+            </div>
+            <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">Quản lý sự kiện — Từ đăng ký đến Lead tự động</h3>
+            <p class="text-sm lg:text-base text-body leading-relaxed mb-4">
+              Base CRM hỗ trợ tạo <strong class="text-ink">mini landing page đăng ký sự kiện</strong> cho Webinar (Zoom) và Workshop offline — tự động hóa toàn bộ khâu đăng ký và đồng bộ danh sách người tham gia thẳng vào phễu Lead, không cần import thủ công.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div class="bg-dat-blue-lighter rounded-xl p-4 border border-dat-blue/10 text-center">
+                <div class="text-xs font-bold text-dat-blue uppercase tracking-wider mb-2">Tạo Landing Page</div>
+                <p class="text-sm text-body">Dựng form đăng ký sự kiện nhanh — không cần team kỹ thuật, tùy chỉnh thông tin thu thập theo từng sự kiện.</p>
+              </div>
+              <div class="bg-dat-blue-lighter rounded-xl p-4 border border-dat-blue/10 text-center">
+                <div class="text-xs font-bold text-dat-blue uppercase tracking-wider mb-2">Tự động hóa đăng ký</div>
+                <p class="text-sm text-body">Người đăng ký được xác nhận tự động qua email/Zalo, nhắc lịch trước giờ diễn ra — <strong class="text-ink">không cần nhân sự xử lý thủ công</strong>.</p>
+              </div>
+              <div class="bg-dat-blue-lighter rounded-xl p-4 border border-dat-blue/10 text-center">
+                <div class="text-xs font-bold text-dat-blue uppercase tracking-wider mb-2">Đồng bộ vào Lead Pool</div>
+                <p class="text-sm text-body">Sau sự kiện, toàn bộ người tham dự tự động vào phễu Lead với tag nguồn — Sales biết ngay ai đến từ sự kiện nào.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── SUB 4: Lead Routing & SLA ── -->
+          <div class="sub-panel" data-panel="cap1-sub" data-id="cap1-4">
+            <div class="img-wrap mb-5">
+              <img src="./images/01-4-lead-routing-sla.png" alt="Lead Routing & SLA" loading="lazy"
+                   onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+              <div class="img-placeholder">
+                <div class="ph-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E92D4" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg></div>
+                <p class="ph-filename">01-4-lead-routing-sla.png</p>
+                <p class="ph-hint">Screenshot quy tắc phân bổ Lead tự động theo BU / khu vực / KPI — hoặc màn hình cảnh báo SLA / thu hồi Lead quá hạn</p>
+                <span class="ph-tag">Năng lực 01 · Lead Routing &amp; SLA</span>
+              </div>
+            </div>
+            <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">Điều phối thông minh &amp; SLA tự động</h3>
+            <p class="text-sm lg:text-base text-body leading-relaxed mb-4">
+              Lead vừa vào hệ thống được <strong class="text-ink">phân bổ tự động</strong> cho TeleMarketing hoặc Sales dựa trên quy tắc về BU, khu vực địa lý và trọng số KPI — không phụ thuộc vào việc ai đang online hay ai được nhớ đến trước.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div class="bg-dat-blue-lighter rounded-xl p-4 border border-dat-blue/10">
+                <div class="text-xs font-bold text-dat-blue uppercase tracking-wider mb-2">Phân bổ theo Rule</div>
+                <div class="space-y-1.5 text-sm text-body">
+                  <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Theo Business Unit (BU)</div>
+                  <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Theo khu vực địa lý</div>
+                  <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Theo trọng số KPI từng Sales</div>
+                </div>
+              </div>
+              <div class="bg-dat-orange-light rounded-xl p-4 border border-dat-orange/10">
+                <div class="text-xs font-bold text-dat-orange-dark uppercase tracking-wider mb-2">SLA &amp; Thu hồi tự động</div>
+                <p class="text-sm text-body leading-relaxed">Nếu Sales không có hành động trong <strong class="text-ink">4 giờ</strong> (gọi điện / phản hồi), Lead tự động được cảnh báo, thu hồi về Pool và tái phân bổ cho nhân sự khác. Không có Lead nào bị bỏ quên.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── SUB 5: Base AI & Engagement ── -->
+          <div class="sub-panel" data-panel="cap1-sub" data-id="cap1-5">
+            <div class="img-wrap mb-5">
+              <img src="./images/01-5-ai-engagement.png" alt="Base AI & Omni Engagement" loading="lazy"
+                   onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+              <div class="img-placeholder">
+                <div class="ph-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E92D4" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+                <p class="ph-filename">01-5-ai-engagement.png</p>
+                <p class="ph-hint">Screenshot giao diện hội tụ chat đa kênh (Facebook, Zalo OA, Viber, WhatsApp...) trong Base CRM — thấy rõ các kênh gom về 1 inbox, hoặc Base AI đang tự động trả lời</p>
+                <span class="ph-tag">Năng lực 01 · Base AI &amp; Engagement</span>
+              </div>
+            </div>
+            <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">Base AI &amp; Tương tác đa kênh trên 1 giao diện</h3>
+            <p class="text-sm lg:text-base text-body leading-relaxed mb-4">
+              Base CRM đóng vai trò <strong class="text-ink">Customer Operations Hub</strong> — gom toàn bộ kênh chat về một inbox duy nhất và để Base AI trực 24/7 xử lý các câu hỏi ban đầu, thu thập thông tin và chuyển đổi thành Lead mà không cần con người can thiệp thủ công.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div class="bg-dat-blue-lighter rounded-xl p-4 border border-dat-blue/10">
+                <div class="text-xs font-bold text-dat-blue uppercase tracking-wider mb-3">Hội tụ giao tiếp đa kênh</div>
+                <div class="space-y-1.5 text-sm text-body">
+                  <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Facebook Messenger, Zalo OA</div>
+                  <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Viber, WhatsApp, Telegram</div>
+                  <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Zalo cá nhân của nhân viên kinh doanh</div>
+                  <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Mọi hội thoại gắn tự động vào hồ sơ Lead</div>
+                </div>
+              </div>
+              <div class="bg-dat-orange-light rounded-xl p-4 border border-dat-orange/10">
+                <div class="text-xs font-bold text-dat-orange-dark uppercase tracking-wider mb-3">Base AI trực 24/7</div>
+                <p class="text-sm text-body leading-relaxed">AI tự động trả lời câu hỏi cơ bản của khách hàng, <strong class="text-ink">thu thập thông tin liên hệ và nhu cầu</strong>, sau đó tạo Lead và bàn giao cho Sales vào giờ làm việc — không bỏ lỡ bất kỳ khách hàng nào ngoài giờ hành chính.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── SUB 6: Tổng đài ── -->
+          <div class="sub-panel" data-panel="cap1-sub" data-id="cap1-6">
+            <div class="img-wrap mb-5">
+              <img src="./images/01-6-call-center.png" alt="Tích hợp Tổng đài" loading="lazy"
+                   onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+              <div class="img-placeholder">
+                <div class="ph-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E92D4" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+                <p class="ph-filename">01-6-call-center.png</p>
+                <p class="ph-hint">Screenshot popup profile khách hàng hiện lên khi có cuộc gọi đến — hoặc giao diện lịch sử cuộc gọi (thời lượng, ghi âm) gắn vào hồ sơ Lead trong Base CRM</p>
+                <span class="ph-tag">Năng lực 01 · Tổng đài</span>
+              </div>
+            </div>
+            <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">Tích hợp tổng đài — Gọi thông minh, lưu đủ lịch sử</h3>
+            <p class="text-sm lg:text-base text-body leading-relaxed mb-4">
+              Base CRM kết nối trực tiếp với các nhà cung cấp tổng đài phổ biến. Mọi cuộc gọi đều được ghi nhận đầy đủ và gắn tự động vào hồ sơ khách hàng — quản lý theo dõi được chất lượng cuộc gọi mà không cần hỏi lại Sales.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div class="bg-dat-blue-lighter rounded-xl p-4 border border-dat-blue/10">
+                <div class="text-xs font-bold text-dat-blue uppercase tracking-wider mb-3">Nhà cung cấp hỗ trợ</div>
+                <div class="space-y-1.5 text-sm text-body">
+                  <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Mắt Bão</div>
+                  <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Omicall</div>
+                  <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Gọi qua Sim cá nhân</div>
+                </div>
+              </div>
+              <div class="bg-dat-blue-lighter rounded-xl p-4 border border-dat-blue/10">
+                <div class="text-xs font-bold text-dat-blue uppercase tracking-wider mb-3">Tính năng nổi bật</div>
+                <div class="space-y-1.5 text-sm text-body">
+                  <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Ghi nhận thời lượng cuộc gọi</div>
+                  <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Ghi âm tự động lưu vào hồ sơ</div>
+                  <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span><strong class="text-ink">Hiển thị profile khách khi có cuộc gọi đến</strong> — Sales biết ngay đang nói chuyện với ai</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- ============ NĂNG LỰC 02 ============ -->
+        <div class="tab-panel" data-panel="cap" data-id="cap2">
+          <div class="sub-tabs" data-tabs="cap2-sub">
+            <button class="sub-tab active" data-tab="cap2-sub" data-target="cap2-1"><span class="sub-num">1</span>Multi-Pipeline</button>
+            <button class="sub-tab" data-tab="cap2-sub" data-target="cap2-2"><span class="sub-num">2</span>Chuẩn hóa Stage</button>
+            <button class="sub-tab" data-tab="cap2-sub" data-target="cap2-3"><span class="sub-num">3</span>Số hóa tương tác</button>
+            <button class="sub-tab" data-tab="cap2-sub" data-target="cap2-4"><span class="sub-num">4</span>Sales Playbook</button>
+            <button class="sub-tab" data-tab="cap2-sub" data-target="cap2-5"><span class="sub-num">5</span>Buying Signal</button>
+            <button class="sub-tab" data-tab="cap2-sub" data-target="cap2-6"><span class="sub-num">6</span>Zalo Integration</button>
+            <button class="sub-tab" data-tab="cap2-sub" data-target="cap2-7"><span class="sub-num">7</span>Tích hợp Báo giá</button>
+          </div>
+
+          <!-- ── SUB 1: Multi-Pipeline (giữ nguyên với BU tabs) ── -->
+          <div class="sub-panel active" data-panel="cap2-sub" data-id="cap2-1">
+            <div class="bu-tabs">
+              <button class="bu-tab active" data-butab="cap2-bu" data-target="cap2-bu-0">Multi-Pipeline</button>
+              <button class="bu-tab" data-butab="cap2-bu" data-target="cap2-bu-1">Automation</button>
+              <button class="bu-tab" data-butab="cap2-bu" data-target="cap2-bu-2">Elevator</button>
+              <button class="bu-tab" data-butab="cap2-bu" data-target="cap2-bu-3">Energy (Solar)</button>
+              <button class="bu-tab" data-butab="cap2-bu" data-target="cap2-bu-4">EPC</button>
+            </div>
+            <div class="bu-panel active" data-bupanel="cap2-bu" data-id="cap2-bu-0">
+              <div class="img-wrap mb-5">
+                <img src="./images/02-1-pipeline-overview.png" alt="Multi-Pipeline Tổng quan" loading="lazy"
+                     onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+                <div class="img-placeholder">
+                  <div class="ph-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E92D4" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+                  <p class="ph-filename">02-1-pipeline-overview.png</p>
+                  <p class="ph-hint">Screenshot tổng quan Multi-Pipeline (Kanban view nhiều BU)</p>
+                  <span class="ph-tag">Năng lực 02 · Multi-Pipeline · Tổng quan</span>
+                </div>
+              </div>
+              <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">Multi-Pipeline theo từng BU</h3>
+              <p class="text-sm lg:text-base text-body leading-relaxed">
+                Base CRM cho phép DAT xây dựng nhiều quy trình bán hàng riêng biệt phù hợp với đặc thù của từng Business Unit — thay vì dùng chung một quy trình cứng nhắc. Mỗi sales có thể chăm sóc cùng lúc hàng trăm khách hàng mà <strong class="text-ink">không bị quên lịch sử hoặc bỏ sót việc cần làm</strong> tiếp theo.
+              </p>
+            </div>
+            <div class="bu-panel" data-bupanel="cap2-bu" data-id="cap2-bu-1">
+              <div class="img-wrap mb-5">
+                <img src="./images/02-1-pipeline-automation.png" alt="Pipeline Automation" loading="lazy"
+                     onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+                <div class="img-placeholder">
+                  <div class="ph-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E92D4" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+                  <p class="ph-filename">02-1-pipeline-automation.png</p>
+                  <p class="ph-hint">Screenshot pipeline BU Automation</p>
+                  <span class="ph-tag">Năng lực 02 · Multi-Pipeline · Automation</span>
+                </div>
+              </div>
+              <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">Automation</h3>
+              <p class="text-sm lg:text-base text-body leading-relaxed">Quy trình tập trung vào <strong class="text-ink">tốc độ xử lý hàng hóa</strong> và tự động hóa việc tái khai thác khách hàng cũ. Đội sales phản ứng nhanh, không để lead nguội lạnh.</p>
+            </div>
+            <div class="bu-panel" data-bupanel="cap2-bu" data-id="cap2-bu-2">
+              <div class="img-wrap mb-5">
+                <img src="./images/02-1-pipeline-elevator.png" alt="Pipeline Elevator" loading="lazy"
+                     onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+                <div class="img-placeholder">
+                  <div class="ph-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E92D4" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+                  <p class="ph-filename">02-1-pipeline-elevator.png</p>
+                  <p class="ph-hint">Screenshot pipeline BU Elevator (Kênh + Dự án)</p>
+                  <span class="ph-tag">Năng lực 02 · Multi-Pipeline · Elevator</span>
+                </div>
+              </div>
+              <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">Elevator — Kênh &amp; Dự án</h3>
+              <p class="text-sm lg:text-base text-body leading-relaxed">Phân tách rõ ràng giữa <strong class="text-ink">Pipeline Kênh</strong> (chăm sóc nhà thầu thang máy lặp lại) và <strong class="text-ink">Pipeline Dự án</strong> (theo đuổi công trình dài hạn nhiều bên).</p>
+            </div>
+            <div class="bu-panel" data-bupanel="cap2-bu" data-id="cap2-bu-3">
+              <div class="img-wrap mb-5">
+                <img src="./images/02-1-pipeline-energy.png" alt="Pipeline Energy" loading="lazy"
+                     onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+                <div class="img-placeholder">
+                  <div class="ph-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E92D4" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+                  <p class="ph-filename">02-1-pipeline-energy.png</p>
+                  <p class="ph-hint">Screenshot pipeline BU Energy (Solar)</p>
+                  <span class="ph-tag">Năng lực 02 · Multi-Pipeline · Energy</span>
+                </div>
+              </div>
+              <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">Energy (Solar)</h3>
+              <p class="text-sm lg:text-base text-body leading-relaxed">Quản trị và phát triển <strong class="text-ink">Installer</strong> — theo dõi từ lúc quan tâm đến khi phát sinh đơn hàng đầu tiên và duy trì mua hàng lặp lại.</p>
+            </div>
+            <div class="bu-panel" data-bupanel="cap2-bu" data-id="cap2-bu-4">
+              <div class="img-wrap mb-5">
+                <img src="./images/02-1-pipeline-epc.png" alt="Pipeline EPC" loading="lazy"
+                     onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+                <div class="img-placeholder">
+                  <div class="ph-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E92D4" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+                  <p class="ph-filename">02-1-pipeline-epc.png</p>
+                  <p class="ph-hint">Screenshot pipeline BU EPC</p>
+                  <span class="ph-tag">Năng lực 02 · Multi-Pipeline · EPC</span>
+                </div>
+              </div>
+              <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">EPC</h3>
+              <p class="text-sm lg:text-base text-body leading-relaxed">Quy trình theo đuổi <strong class="text-ink">dự án lớn</strong> với thời gian triển khai dài và nhiều bên liên quan — không bước nào bị bỏ qua.</p>
+            </div>
+          </div>
+
+          <!-- ── SUB 2: Chuẩn hóa Stage ── -->
+          <div class="sub-panel" data-panel="cap2-sub" data-id="cap2-2">
+            <div class="img-wrap mb-5">
+              <img src="./images/02-2-stage-standard.png" alt="Chuẩn hóa Stage bán hàng" loading="lazy"
+                   onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+              <div class="img-placeholder">
+                <div class="ph-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E92D4" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+                <p class="ph-filename">02-2-stage-standard.png</p>
+                <p class="ph-hint">Screenshot thiết lập Stage pipeline với điều kiện bắt buộc (Required fields / Checklist trước khi chuyển giai đoạn)</p>
+                <span class="ph-tag">Năng lực 02 · Chuẩn hóa Stage</span>
+              </div>
+            </div>
+            <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">Chuẩn hóa giai đoạn bán hàng</h3>
+            <p class="text-sm lg:text-base text-body leading-relaxed mb-4">
+              Hệ thống giúp DAT thiết lập các giai đoạn bán hàng tiêu chuẩn: <strong class="text-ink">Tiếp nhận → Xác nhận nhu cầu → Hẹn trao đổi → Đàm phán → Hợp đồng</strong>.
+            </p>
+            <div class="bg-dat-blue-lighter rounded-xl p-4 border border-dat-blue/10">
+              <div class="text-xs font-bold text-dat-blue uppercase tracking-wider mb-3">Yêu cầu tiêu chuẩn theo từng giai đoạn</div>
+              <p class="text-sm text-body leading-relaxed">Có thể cài đặt các điều kiện hoặc công việc bắt buộc — như phải điền đủ thông tin nhu cầu hoặc hoàn thành khảo sát thực địa — <strong class="text-ink">thì Sales mới được phép kéo thương vụ sang bước tiếp theo</strong>. Đảm bảo chất lượng đầu vào đồng đều toàn đội.</p>
+            </div>
+          </div>
+
+          <!-- ── SUB 3: Số hóa tương tác ── -->
+          <div class="sub-panel" data-panel="cap2-sub" data-id="cap2-3">
+            <div class="img-wrap mb-5">
+              <img src="./images/02-3-activity-log.png" alt="Nhật ký hoạt động" loading="lazy"
+                   onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+              <div class="img-placeholder">
+                <div class="ph-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E92D4" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+                <p class="ph-filename">02-3-activity-log.png</p>
+                <p class="ph-hint">Screenshot nhật ký hoạt động trong hồ sơ thương vụ: cuộc gọi, ghi chú, email, lịch hẹn — kèm tính năng Advice của quản lý</p>
+                <span class="ph-tag">Năng lực 02 · Số hóa tương tác</span>
+              </div>
+            </div>
+            <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">Số hóa toàn bộ tương tác với khách hàng</h3>
+            <p class="text-sm lg:text-base text-body leading-relaxed mb-4">
+              Mọi cuộc gọi, cuộc họp, ghi chú và email đều được lưu lại — giúp quản lý biết đội ngũ đã có bao nhiêu <strong class="text-ink">"điểm chạm"</strong> với từng khách trong quá khứ.
+            </p>
+            <div class="bg-dat-orange-light rounded-xl p-4 border border-dat-orange/10">
+              <div class="text-xs font-bold text-dat-orange-dark uppercase tracking-wider mb-3">Advice từ quản lý</div>
+              <p class="text-sm text-body leading-relaxed">Dựa vào nhật ký hoạt động, quản lý có thể vào xem và <strong class="text-ink">đưa ra lời khuyên (Advice) trực tiếp trên hồ sơ thương vụ</strong> — hướng dẫn nhân viên bước đi tiếp theo với khách hàng mà không cần họp riêng.</p>
+            </div>
+          </div>
+
+          <!-- ── SUB 4: Sales Playbook ── -->
+          <div class="sub-panel" data-panel="cap2-sub" data-id="cap2-4">
+            <div class="img-wrap mb-5">
+              <img src="./images/02-4-sales-playbook.png" alt="Sales Playbook" loading="lazy"
+                   onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+              <div class="img-placeholder">
+                <div class="ph-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E92D4" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></div>
+                <p class="ph-filename">02-4-sales-playbook.png</p>
+                <p class="ph-hint">Screenshot Sales Playbook: mẫu email, chuỗi điểm chạm tự động (sequence), hoặc thư viện template chung toàn đội</p>
+                <span class="ph-tag">Năng lực 02 · Sales Playbook</span>
+              </div>
+            </div>
+            <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">Nhân bản kịch bản bán hàng thành công</h3>
+            <p class="text-sm lg:text-base text-body leading-relaxed mb-4">
+              Các mẫu email giới thiệu sản phẩm, đề xuất phương án hiệu quả được <strong class="text-ink">chia sẻ dùng chung toàn đội ngũ</strong>. Sales mới onboard nhanh, sales giỏi không "ôm bí kíp riêng".
+            </p>
+            <div class="bg-dat-blue-lighter rounded-xl p-4 border border-dat-blue/10">
+              <div class="text-xs font-bold text-dat-blue uppercase tracking-wider mb-3">Chuỗi điểm chạm tự động</div>
+              <p class="text-sm text-body leading-relaxed">Cho phép Sales xây dựng luồng chăm sóc tự động trong Pipeline — ví dụ: <strong class="text-ink">Ngày 1 gửi email chào mừng · Ngày 3 nhắc gọi điện · Ngày 7 gửi tin nhắn Zalo</strong> — duy trì nhịp độ chăm sóc trong nhiều tháng mà không bị quên lịch.</p>
+            </div>
+          </div>
+
+          <!-- ── SUB 5: Buying Signal ── -->
+          <div class="sub-panel" data-panel="cap2-sub" data-id="cap2-5">
+            <div class="img-wrap mb-5">
+              <img src="./images/02-5-buying-signal.png" alt="Buying Signal" loading="lazy"
+                   onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+              <div class="img-placeholder">
+                <div class="ph-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F58220" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9z"/></svg></div>
+                <p class="ph-filename">02-5-buying-signal.png</p>
+                <p class="ph-hint">Screenshot thông báo Buying Signal: khách mở email / click tài liệu → alert realtime cho Sales</p>
+                <span class="ph-tag">Năng lực 02 · Buying Signal</span>
+              </div>
+            </div>
+            <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">Buying Signal — Chọn đúng "thời điểm vàng"</h3>
+            <p class="text-sm lg:text-base text-body leading-relaxed mb-4">
+              Thông báo <strong class="text-ink">thời gian thực</strong> khi khách hàng mở email báo giá hoặc click vào tài liệu kỹ thuật — giúp Sales tiếp cận đúng lúc khách đang quan tâm, không gọi ngẫu nhiên, không "spam" sai thời điểm.
+            </p>
+            <div class="bg-dat-blue-lighter rounded-xl p-4 border border-dat-blue/10">
+              <div class="text-xs font-bold text-dat-blue uppercase tracking-wider mb-3">Hệ thống nhắc việc tự động</div>
+              <p class="text-sm text-body leading-relaxed">Lập kế hoạch công việc cho từng khách hàng và được <strong class="text-ink">tự động nhắc nhở qua Base Reminder</strong> — Sales không cần nhớ thủ công, không bao giờ bỏ sót lịch follow-up.</p>
+            </div>
+          </div>
+
+          <!-- ── SUB 6: Zalo Integration ── -->
+          <div class="sub-panel" data-panel="cap2-sub" data-id="cap2-6">
+            <div class="img-wrap mb-5">
+              <img src="./images/02-6-zalo-integration.png" alt="Zalo Integration" loading="lazy"
+                   onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+              <div class="img-placeholder">
+                <div class="ph-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0068FF" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                </div>
+                <p class="ph-filename">02-6-zalo-integration.png</p>
+                <p class="ph-hint">Screenshot gửi tin nhắn Zalo cá nhân hoặc ZNS trực tiếp từ giao diện Base CRM — kèm lịch sử tin nhắn gắn vào hồ sơ thương vụ</p>
+                <span class="ph-tag">Năng lực 02 · Zalo Integration</span>
+              </div>
+            </div>
+
+            <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">Zalo ZNS &amp; Zalo cá nhân — Tương tác ngay trong Base CRM</h3>
+            <p class="text-sm lg:text-base text-body leading-relaxed mb-5">
+              Base CRM tích hợp trực tiếp với <strong class="text-ink">Zalo ZNS</strong> (Zalo Notification Service) và <strong class="text-ink">Zalo cá nhân</strong> — kênh nhắn tin phổ biến nhất tại thị trường Việt Nam. Sales không cần rời khỏi Base CRM để nhắn tin cho khách, toàn bộ lịch sử hội thoại được lưu lại và gắn tự động vào hồ sơ thương vụ.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-1">
+              <div class="bg-dat-blue-lighter rounded-xl p-4 border border-dat-blue/10">
+                <div class="text-xs font-bold text-dat-blue uppercase tracking-wider mb-2">Zalo ZNS</div>
+                <p class="text-sm text-body leading-relaxed">Gửi thông báo chăm sóc khách hàng theo kịch bản định sẵn — xác nhận lịch hẹn, nhắc báo giá sắp hết hạn, thông báo trạng thái đơn hàng — <strong class="text-ink">tỷ lệ mở tin nhắn Zalo ZNS đạt trên 80%</strong>, vượt trội so với email.</p>
+              </div>
+              <div class="bg-dat-blue-lighter rounded-xl p-4 border border-dat-blue/10">
+                <div class="text-xs font-bold text-dat-blue uppercase tracking-wider mb-2">Zalo cá nhân</div>
+                <p class="text-sm text-body leading-relaxed">Sales nhắn tin trao đổi trực tiếp với từng khách hàng qua Zalo ngay trong giao diện CRM. Mọi cuộc hội thoại được <strong class="text-ink">lưu lại theo hồ sơ khách</strong> — quản lý xem được toàn bộ, không còn "tin nhắn nằm trong điện thoại cá nhân" của Sales.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── SUB 7: Tích hợp Báo giá DAT ── -->
+          <div class="sub-panel" data-panel="cap2-sub" data-id="cap2-7">
+            <div class="img-wrap mb-5">
+              <img src="./images/02-7-bao-gia-dat.png" alt="Tích hợp Báo giá DAT" loading="lazy"
+                   onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+              <div class="img-placeholder">
+                <div class="ph-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E92D4" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+                <p class="ph-filename">02-7-bao-gia-dat.png</p>
+                <p class="ph-hint">Sơ đồ Integration 5 bước: BASE CRM → Tạo link báo giá → DAT kiểm tra khách → Đồng bộ/Tạo khách hàng → Mở trang Báo giá DAT hoàn tất</p>
+                <span class="ph-tag">Năng lực 02 · Tích hợp Báo giá DAT</span>
+              </div>
+            </div>
+
+            <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">Tích hợp với hệ thống Báo giá DAT — Liền mạch, tự động &amp; chính xác</h3>
+            <p class="text-sm lg:text-base text-body leading-relaxed mb-4">
+              Base CRM kết nối trực tiếp với hệ thống Báo giá của DAT Group thông qua Open URL. Sales chỉ cần <strong class="text-ink">một click từ Deal trên Base</strong> để mở thẳng trang Báo giá DAT với đầy đủ thông tin khách hàng được điền sẵn — không nhập lại, không sai sót.
+            </p>
+
+            <!-- 5-step flow -->
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-2 mb-4">
+              <div class="bg-dat-blue-lighter rounded-xl p-3 border border-dat-blue/10 text-center relative">
+                <div class="w-6 h-6 rounded-full bg-dat-blue text-white text-xs font-bold flex items-center justify-center mx-auto mb-2">1</div>
+                <div class="text-xs font-bold text-dat-blue mb-1">Cấu hình trường dữ liệu</div>
+                <p class="text-xs text-muted leading-snug">Thiết lập Deal & Account với mã KH SAP, link báo giá mặc định</p>
+              </div>
+              <div class="bg-dat-blue-lighter rounded-xl p-3 border border-dat-blue/10 text-center">
+                <div class="w-6 h-6 rounded-full bg-dat-blue text-white text-xs font-bold flex items-center justify-center mx-auto mb-2">2</div>
+                <div class="text-xs font-bold text-dat-blue mb-1">Tạo link báo giá từ Base</div>
+                <p class="text-xs text-muted leading-snug">Base tự động tạo URL kèm tham số: deal_id, account_id, customer_code, customer_name...</p>
+              </div>
+              <div class="bg-dat-blue-lighter rounded-xl p-3 border border-dat-blue/10 text-center">
+                <div class="w-6 h-6 rounded-full bg-dat-blue text-white text-xs font-bold flex items-center justify-center mx-auto mb-2">3</div>
+                <div class="text-xs font-bold text-dat-blue mb-1">DAT kiểm tra khách hàng</div>
+                <p class="text-xs text-muted leading-snug">Hệ thống DAT nhận link, kiểm tra khách hàng đã tồn tại chưa trong database</p>
+              </div>
+              <div class="bg-dat-blue-lighter rounded-xl p-3 border border-dat-blue/10 text-center">
+                <div class="w-6 h-6 rounded-full bg-dat-blue text-white text-xs font-bold flex items-center justify-center mx-auto mb-2">4</div>
+                <div class="text-xs font-bold text-dat-blue mb-1">Tạo / Đồng bộ khách hàng</div>
+                <p class="text-xs text-muted leading-snug">Nếu chưa có: tự động tạo mới. Nếu đã có: đồng bộ tên, địa chỉ, MST, SĐT, email</p>
+              </div>
+              <div class="bg-dat-orange-light rounded-xl p-3 border border-dat-orange/10 text-center">
+                <div class="w-6 h-6 rounded-full bg-dat-orange text-white text-xs font-bold flex items-center justify-center mx-auto mb-2">5</div>
+                <div class="text-xs font-bold text-dat-orange-dark mb-1">Mở Báo giá — Hoàn tất</div>
+                <p class="text-xs text-muted leading-snug">Trang Báo giá DAT mở ra với thông tin điền sẵn — Sales lập báo giá ngay lập tức</p>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+              <div class="bg-subtle rounded-lg p-3 text-center border border-subtle">
+                <div class="text-xs font-bold text-dat-blue mb-1">Tự động hóa</div>
+                <p class="text-xs text-muted">Quy trình báo giá không cần nhập tay</p>
+              </div>
+              <div class="bg-subtle rounded-lg p-3 text-center border border-subtle">
+                <div class="text-xs font-bold text-dat-blue mb-1">Đồng bộ chính xác</div>
+                <p class="text-xs text-muted">Dữ liệu khách hàng luôn nhất quán</p>
+              </div>
+              <div class="bg-subtle rounded-lg p-3 text-center border border-subtle">
+                <div class="text-xs font-bold text-dat-blue mb-1">Tiết kiệm thời gian</div>
+                <p class="text-xs text-muted">Giảm thao tác thủ công, tránh sai sót</p>
+              </div>
+              <div class="bg-subtle rounded-lg p-3 text-center border border-subtle">
+                <div class="text-xs font-bold text-dat-blue mb-1">Dữ liệu tập trung</div>
+                <p class="text-xs text-muted">Lịch sử báo giá gắn vào Deal trên Base</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="tab-panel" data-panel="cap" data-id="cap3">
+          <div class="sub-tabs" data-tabs="cap3-sub">
+            <button class="sub-tab active" data-tab="cap3-sub" data-target="cap3-1"><span class="sub-num">1</span>Quản lý Account</button>
+            <button class="sub-tab" data-tab="cap3-sub" data-target="cap3-2"><span class="sub-num">2</span>Hồ sơ &amp; AI Copilot</button>
+            <button class="sub-tab" data-tab="cap3-sub" data-target="cap3-3"><span class="sub-num">3</span>Contact &amp; Deal</button>
+            <button class="sub-tab" data-tab="cap3-sub" data-target="cap3-4"><span class="sub-num">4</span>Stakeholder Tree</button>
+            <button class="sub-tab" data-tab="cap3-sub" data-target="cap3-5"><span class="sub-num">5</span>DW / SAP</button>
+          </div>
+
+          <!-- ── SUB 1: Quản lý Account ── -->
+          <div class="sub-panel active" data-panel="cap3-sub" data-id="cap3-1">
+            <div class="img-wrap mb-5">
+              <img src="./images/03-1-account-management.png" alt="Quản lý Account Kanban" loading="lazy"
+                   onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+              <div class="img-placeholder">
+                <div class="ph-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F58220" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg></div>
+                <p class="ph-filename">03-1-account-management.png</p>
+                <p class="ph-hint">Screenshot Kanban view "Quy trình" của module Công ty — thấy rõ các cột stage: Unstaged / Account / Customer / CSM / Churn cùng thông tin Sales phụ trách, ngành nghề, mô hình kinh doanh trên từng card</p>
+                <span class="ph-tag">Năng lực 03 · Quản lý Account</span>
+              </div>
+            </div>
+            <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">Quản lý toàn bộ Account theo vòng đời khách hàng</h3>
+            <p class="text-sm lg:text-base text-body leading-relaxed mb-4">
+              Toàn bộ tệp công ty của DAT được hiển thị trên <strong class="text-ink">Kanban theo vòng đời</strong> — từ khách chưa tiếp cận đến khách đang khai thác và khách rời bỏ. Quản lý nhìn được toàn bộ danh mục, Sales chủ động theo dõi phần của mình.
+            </p>
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-2 mb-3">
+              <div class="bg-dat-blue-lighter rounded-lg p-3 border border-dat-blue/10 text-center">
+                <div class="text-xs font-bold text-dat-blue mb-1">Unstaged</div>
+                <p class="text-xs text-muted">Chưa phân loại — cần tiếp cận</p>
+              </div>
+              <div class="bg-dat-blue-lighter rounded-lg p-3 border border-dat-blue/10 text-center">
+                <div class="text-xs font-bold text-dat-blue mb-1">Account</div>
+                <p class="text-xs text-muted">Đang trong quy trình khai thác</p>
+              </div>
+              <div class="bg-dat-blue-lighter rounded-lg p-3 border border-dat-blue/10 text-center">
+                <div class="text-xs font-bold text-dat-blue mb-1">Customer</div>
+                <p class="text-xs text-muted">Đã phát sinh doanh thu</p>
+              </div>
+              <div class="bg-dat-orange-light rounded-lg p-3 border border-dat-orange/10 text-center">
+                <div class="text-xs font-bold text-dat-orange-dark mb-1">CSM</div>
+                <p class="text-xs text-muted">Đang chăm sóc sau bán hàng</p>
+              </div>
+              <div class="bg-subtle rounded-lg p-3 border border-subtle text-center">
+                <div class="text-xs font-bold text-muted mb-1">Churn</div>
+                <p class="text-xs text-muted">Khách đã rời — cần tái kích hoạt</p>
+              </div>
+            </div>
+            <div class="bg-dat-blue-lighter rounded-xl p-4 border border-dat-blue/10">
+              <div class="text-xs font-bold text-dat-blue uppercase tracking-wider mb-2">Thông tin hiển thị trên từng card Account</div>
+              <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm text-body">
+                <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Tên công ty &amp; Sales phụ trách</div>
+                <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Tỉnh thành &amp; quy mô</div>
+                <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Ngành nghề &amp; mô hình KD</div>
+                <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Loại hình khách hàng</div>
+                <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Phân khúc &amp; nhãn tùy chỉnh</div>
+                <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Doanh thu &amp; trạng thái deal</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── SUB 2: Hồ sơ Account + AI Copilot ── -->
+          <div class="sub-panel" data-panel="cap3-sub" data-id="cap3-2">
+            <div class="img-wrap mb-5">
+              <img src="./images/03-2-account-profile.png" alt="Hồ sơ Account & AI Copilot" loading="lazy"
+                   onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+              <div class="img-placeholder">
+                <div class="ph-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F58220" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+                <p class="ph-filename">03-2-account-profile.png</p>
+                <p class="ph-hint">Screenshot hồ sơ Account đầy đủ (trái: thông tin công ty, MST, địa chỉ / giữa: dòng hoạt động / phải: AI Copilot đang tóm tắt đơn hàng gần đây)</p>
+                <span class="ph-tag">Năng lực 03 · Hồ sơ Account &amp; AI Copilot</span>
+              </div>
+            </div>
+            <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">Hồ sơ Account đầy đủ — Tích hợp AI Copilot</h3>
+            <p class="text-sm lg:text-base text-body leading-relaxed mb-4">
+              Mỗi Account trong Base CRM là một hồ sơ doanh nghiệp hoàn chỉnh gồm 3 vùng thông tin: <strong class="text-ink">thông tin công ty</strong> bên trái, <strong class="text-ink">dòng hoạt động</strong> ở giữa, và <strong class="text-ink">AI Copilot</strong> ngay bên phải — Sales nắm toàn bộ bối cảnh khách hàng trên một màn hình duy nhất.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div class="bg-dat-blue-lighter rounded-xl p-4 border border-dat-blue/10">
+                <div class="text-xs font-bold text-dat-blue uppercase tracking-wider mb-3">Thông tin hồ sơ Account</div>
+                <div class="space-y-1.5 text-sm text-body">
+                  <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Tên công ty, MST, ngành nghề</div>
+                  <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Địa chỉ, tên miền, Sales phụ trách</div>
+                  <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Dòng hoạt động: ghi chú, thư, cuộc họp, gọi điện, việc cần làm</div>
+                  <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Trường dữ liệu tùy chỉnh theo từng BU</div>
+                </div>
+              </div>
+              <div class="bg-dat-orange-light rounded-xl p-4 border border-dat-orange/10">
+                <div class="text-xs font-bold text-dat-orange-dark uppercase tracking-wider mb-3">AI Copilot — Account Summary</div>
+                <p class="text-sm text-body leading-relaxed mb-3">AI đọc toàn bộ lịch sử giao dịch trong hồ sơ và <strong class="text-ink">tóm tắt ngay các đơn hàng gần đây</strong> của Account — Sales nắm tình hình khách hàng chỉ trong vài giây mà không cần cuộn lại hàng chục ghi chú.</p>
+                <div class="bg-white rounded-lg p-3 border border-dat-orange/10 text-xs text-muted italic leading-relaxed">
+                  Ví dụ: "Các đơn hàng gần đây của Tổng Công ty May Việt Tiến: (1) Cảm biến hồng ngoại LM-IR 50m — giao hàng cho khách phát sinh. (2) Cáp tín hiệu CY 8 lõi — hàng Lapp Ölflex CLASSIC. (3) Tủ điện điều khiển LM 325×250×150 IP65 — ngày bán 22/04, số lượng 8 cái..."
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── SUB 3: Contact & Deal ── -->
+          <div class="sub-panel" data-panel="cap3-sub" data-id="cap3-3">
+            <div class="img-wrap mb-5">
+              <img src="./images/03-3-contact-deal.png" alt="Contact và Deal liên kết" loading="lazy"
+                   onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+              <div class="img-placeholder">
+                <div class="ph-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F58220" stroke-width="2"><circle cx="9" cy="7" r="4"/><path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/><path d="M16 11h6M19 8v6"/></svg></div>
+                <p class="ph-filename">03-3-contact-deal.png</p>
+                <p class="ph-hint">Screenshot hồ sơ Account hiển thị tab Contact (nhiều người) và tab Deal (nhiều thương vụ) đang liên kết — thấy rõ mối quan hệ 1 Account → nhiều Contact → nhiều Deal</p>
+                <span class="ph-tag">Năng lực 03 · Contact &amp; Deal</span>
+              </div>
+            </div>
+            <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">Một Account — Nhiều Contact — Nhiều Deal</h3>
+            <p class="text-sm lg:text-base text-body leading-relaxed mb-4">
+              Với khách hàng B2B, một doanh nghiệp thường có <strong class="text-ink">nhiều đầu mối liên hệ</strong> và <strong class="text-ink">nhiều thương vụ đang song song</strong> ở các BU khác nhau. Base CRM liên kết tất cả về một Account duy nhất — không bị phân mảnh.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div class="bg-dat-blue-lighter rounded-xl p-4 border border-dat-blue/10">
+                <div class="text-xs font-bold text-dat-blue uppercase tracking-wider mb-2">Nhiều Contact</div>
+                <p class="text-sm text-body leading-relaxed">Giám đốc kỹ thuật, Trưởng phòng mua hàng, Kế toán trưởng — mỗi người một hồ sơ Contact riêng, cùng gắn vào một Account. Sales biết <strong class="text-ink">nên nói chuyện với ai về chủ đề gì</strong>.</p>
+              </div>
+              <div class="bg-dat-blue-lighter rounded-xl p-4 border border-dat-blue/10">
+                <div class="text-xs font-bold text-dat-blue uppercase tracking-wider mb-2">Nhiều Deal đồng bộ</div>
+                <p class="text-sm text-body leading-relaxed">Cùng một khách hàng có thể đang có Deal Automation ở giai đoạn Đàm phán và Deal Elevator ở giai đoạn Báo giá — <strong class="text-ink">tất cả hiển thị rõ trong hồ sơ Account</strong>, không ai bị bỏ sót.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── SUB 4: Stakeholder Tree ── -->
+          <div class="sub-panel" data-panel="cap3-sub" data-id="cap3-4">
+            <div class="img-wrap mb-5">
+              <img src="./images/03-4-stakeholder-tree.png" alt="Decision Making Tree" loading="lazy"
+                   onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+              <div class="img-placeholder">
+                <div class="ph-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F58220" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+                <p class="ph-filename">03-4-stakeholder-tree.png</p>
+                <p class="ph-hint">Screenshot Decision Making Tree / sơ đồ Stakeholder trong thương vụ: Influencer, Decider, User, Sponsor — thấy rõ vai trò và mối quan hệ giữa các đầu mối</p>
+                <span class="ph-tag">Năng lực 03 · Stakeholder Tree</span>
+              </div>
+            </div>
+            <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">Decision Making Tree — Nắm rõ ai quyết định, ai ảnh hưởng</h3>
+            <p class="text-sm lg:text-base text-body leading-relaxed mb-4">
+              Trong B2B, một thương vụ thường có nhiều người liên quan đến quyết định mua hàng. Base CRM cho phép Sales <strong class="text-ink">thiết kế sơ đồ Stakeholder</strong> ngay trong hồ sơ thương vụ — xác định rõ vai trò từng người để có chiến lược tiếp cận đúng đắn.
+            </p>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
+              <div class="bg-dat-blue-lighter rounded-xl p-3 border border-dat-blue/10 text-center">
+                <div class="text-xs font-bold text-dat-blue mb-1">DECIDER</div>
+                <p class="text-xs text-muted">Người ra quyết định cuối cùng</p>
+              </div>
+              <div class="bg-dat-orange-light rounded-xl p-3 border border-dat-orange/10 text-center">
+                <div class="text-xs font-bold text-dat-orange-dark mb-1">INFLUENCER</div>
+                <p class="text-xs text-muted">Người có tác động đến quyết định</p>
+              </div>
+              <div class="bg-dat-blue-lighter rounded-xl p-3 border border-dat-blue/10 text-center">
+                <div class="text-xs font-bold text-dat-blue mb-1">USER</div>
+                <p class="text-xs text-muted">Người trực tiếp sử dụng sản phẩm</p>
+              </div>
+              <div class="bg-dat-blue-lighter rounded-xl p-3 border border-dat-blue/10 text-center">
+                <div class="text-xs font-bold text-dat-blue mb-1">SPONSOR</div>
+                <p class="text-xs text-muted">Người bảo lãnh nội bộ cho dự án</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── SUB 5: DW / SAP ── -->
+          <div class="sub-panel" data-panel="cap3-sub" data-id="cap3-5">
+            <div class="img-wrap mb-5">
+              <img src="./images/03-5-dw-sap.png" alt="Tích hợp DW và SAP" loading="lazy"
+                   onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+              <div class="img-placeholder">
+                <div class="ph-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F58220" stroke-width="2"><path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/><path d="M2 7l10 5 10-5"/><path d="M12 22V12"/></svg></div>
+                <p class="ph-filename">03-5-dw-sap.png</p>
+                <p class="ph-hint">Screenshot hồ sơ Account hiển thị dữ liệu đồng bộ từ SAP / DW: lịch sử đơn hàng, doanh thu, công nợ, bảo hành — Sales thấy ngay mà không cần vào SAP</p>
+                <span class="ph-tag">Năng lực 03 · Tích hợp DW / SAP</span>
+              </div>
+            </div>
+            <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">Tích hợp dữ liệu từ Data Warehouse &amp; SAP</h3>
+            <p class="text-sm lg:text-base text-body leading-relaxed mb-4">
+              Dữ liệu giao dịch từ <strong class="text-ink">SAP Business One</strong> và <strong class="text-ink">Data Warehouse</strong> của DAT được đồng bộ trực tiếp vào hồ sơ Account — nhân sự kinh doanh theo dõi và kiểm soát mọi chỉ số quan trọng mà không cần truy cập nhiều hệ thống riêng lẻ.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div class="bg-dat-blue-lighter rounded-xl p-4 border border-dat-blue/10">
+                <div class="text-xs font-bold text-dat-blue uppercase tracking-wider mb-3">Dữ liệu từ SAP B1 / Data Warehouse</div>
+                <div class="space-y-1.5 text-sm text-body">
+                  <div class="flex items-center gap-2"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Lịch sử đơn hàng &amp; doanh thu theo kỳ</div>
+                </div>
+              </div>
+              <div class="bg-dat-orange-light rounded-xl p-4 border border-dat-orange/10">
+                <div class="text-xs font-bold text-dat-orange-dark uppercase tracking-wider mb-3">Giá trị với đội Sales</div>
+                <p class="text-sm text-body leading-relaxed">Sales gặp khách đã biết ngay <strong class="text-ink">"đã mua những sản phẩm gì, doanh thu từng kỳ ra sao"</strong> — chuyên nghiệp từ câu đầu tiên, không phải chạy sang hệ thống khác để tra cứu.</p>
+              </div>
+            </div>
+          </div>
+
+
+        </div>
+
+        <!-- ============ NĂNG LỰC 04 ============ -->
+        <div class="tab-panel" data-panel="cap" data-id="cap4">
+          <div class="sub-tabs" data-tabs="cap4-sub">
+            <button class="sub-tab active" data-tab="cap4-sub" data-target="cap4-1"><span class="sub-num">1</span>Leading KPI</button>
+            <button class="sub-tab" data-tab="cap4-sub" data-target="cap4-2"><span class="sub-num">2</span>Lagging KPI</button>
+            <button class="sub-tab" data-tab="cap4-sub" data-target="cap4-3"><span class="sub-num">3</span>Open API</button>
+            <button class="sub-tab" data-tab="cap4-sub" data-target="cap4-4"><span class="sub-num">4</span>Chiêm nghiệm</button>
+          </div>
+
+          <div class="sub-panel active" data-panel="cap4-sub" data-id="cap4-1">
+            <div class="img-wrap mb-5">
+              <img src="./images/04-1-leading-kpi.png" alt="Leading KPI" loading="lazy"
+                   onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+              <div class="img-placeholder">
+                <div class="ph-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E92D4" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 12l3-3 4 4 5-5"/></svg></div>
+                <p class="ph-filename">04-1-leading-kpi.png</p>
+                <p class="ph-hint">Thêm screenshot Leading Indicators</p>
+                <span class="ph-tag">Năng lực 04 · Tính năng 1/4</span>
+              </div>
+            </div>
+            <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">Leading Indicators — Tín hiệu dẫn dắt kết quả</h3>
+            <p class="text-sm lg:text-base text-body leading-relaxed">
+              <strong class="text-ink">Calls đạt chuẩn (>35s), Meetings, Quotes sent, Demo</strong> — đo lường hoạt động trước khi có kết quả. BLĐ thấy "tháng này team đang vận hành đủ khoẻ chưa" — không phải đợi cuối tháng mới biết "vì sao không đạt KPI".
+            </p>
+          </div>
+
+          <div class="sub-panel" data-panel="cap4-sub" data-id="cap4-2">
+            <div class="img-wrap mb-5">
+              <img src="./images/04-2-lagging-kpi.png" alt="Lagging KPI" loading="lazy"
+                   onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+              <div class="img-placeholder">
+                <div class="ph-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E92D4" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+                <p class="ph-filename">04-2-lagging-kpi.png</p>
+                <p class="ph-hint">Thêm screenshot Lagging Indicators / Conversion funnel</p>
+                <span class="ph-tag">Năng lực 04 · Tính năng 2/4</span>
+              </div>
+            </div>
+            <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">Lagging Indicators — Kết quả chuyển đổi</h3>
+            <p class="text-sm lg:text-base text-body leading-relaxed">
+              <strong class="text-ink">Lead-to-Deal, Deal-to-Revenue, Win Rate, Avg Deal Cycle, Revenue per BU</strong> — chuyển đổi qua từng giai đoạn của phễu. So sánh được giữa các BU, các kỳ, các vùng. Định lượng được "bottleneck" đang nằm ở đâu.
+            </p>
+          </div>
+
+          <div class="sub-panel" data-panel="cap4-sub" data-id="cap4-3">
+            <div class="img-wrap mb-5">
+              <img src="./images/04-3-data-warehouse.png" alt="Open API · Data Warehouse" loading="lazy"
+                   onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+              <div class="img-placeholder">
+                <div class="ph-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E92D4" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg></div>
+                <p class="ph-filename">04-3-data-warehouse.png</p>
+                <p class="ph-hint">Thêm screenshot Open API / DWH integration</p>
+                <span class="ph-tag">Năng lực 04 · Tính năng 3/4</span>
+              </div>
+            </div>
+            <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">Open API · Data Warehouse</h3>
+            <p class="text-sm lg:text-base text-body leading-relaxed">
+              Trích xuất dữ liệu CRM định kỳ/realtime về <strong class="text-ink">Data Warehouse của DAT</strong>. DAT sở hữu hoàn toàn dữ liệu của mình, kết nối với Power BI, Tableau, hoặc các công cụ AI của riêng DAT — không bị "khoá" trong nền tảng nhà cung cấp.
+            </p>
+          </div>
+
+          <div class="sub-panel" data-panel="cap4-sub" data-id="cap4-4">
+            <div class="img-wrap mb-5">
+              <img src="./images/04-4-chiem-nghiem.png" alt="Chiêm nghiệm" loading="lazy"
+                   onerror="this.style.display='none';this.nextElementSibling.classList.add('error-shown')">
+              <div class="img-placeholder">
+                <div class="ph-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0E92D4" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+                <p class="ph-filename">04-4-chiem-nghiem.png</p>
+                <p class="ph-hint">Screenshot trang Chiêm nghiệm — bảng câu chuyện bên trái, bài viết thực tế ở giữa (Anh Hưng | Acme), phần bình luận / lan toả bên phải</p>
+                <span class="ph-tag">Năng lực 04 · Chiêm nghiệm</span>
+              </div>
+            </div>
+            <h3 class="font-display text-lg lg:text-xl font-bold text-ink mb-2">Chiêm nghiệm — Biến câu chuyện thực tế thành tài sản đội ngũ</h3>
+            <p class="text-sm lg:text-base text-body leading-relaxed mb-4">
+              Mỗi câu chuyện Sales gặp ngoài thực địa — một insight từ khách, một bài học từ thương vụ hỏng, một khoảnh khắc hiểu ra điều gì đó — đều có thể được <strong class="text-ink">ghi lại, chia sẻ và lan toả trong toàn đội ngũ</strong> ngay trên Base CRM, thay vì biến mất sau buổi họp.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div class="bg-dat-blue-lighter rounded-xl p-4 border border-dat-blue/10">
+                <div class="text-xs font-bold text-dat-blue uppercase tracking-wider mb-3">Chiêm nghiệm từ người thật, việc thật</div>
+                <p class="text-sm text-body leading-relaxed">Sales ghi lại câu chuyện thực tế gắn với khách hàng cụ thể — từ bài học kinh nghiệm, cách thấu hiểu khách, đến tình yêu sản phẩm — phân loại theo <strong class="text-ink">bảng chiêm nghiệm</strong> do đội tự xây dựng.</p>
+              </div>
+              <div class="bg-dat-blue-lighter rounded-xl p-4 border border-dat-blue/10">
+                <div class="text-xs font-bold text-dat-blue uppercase tracking-wider mb-3">Lan toả &amp; lưu giữ cùng đồng đội</div>
+                <p class="text-sm text-body leading-relaxed">Đồng nghiệp đọc, bình luận và học từ câu chuyện của nhau. Quản lý có thể ghi nhận và <strong class="text-ink">nhân rộng cách làm tốt</strong> ra toàn đội — không cần tổ chức buổi chia sẻ riêng.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GIÁ TRỊ KỲ VỌNG & CHỈ SỐ THÀNH CÔNG ============ -->
+<section id="kpi" class="py-16 lg:py-24 bg-white relative">
+  <div class="max-w-7xl mx-auto px-4 lg:px-10">
+
+    <!-- Section header -->
+    <div class="max-w-3xl mb-12 lg:mb-16">
+      <span class="section-num">06 — GIÁ TRỊ KỲ VỌNG</span>
+      <h2 class="font-display text-3xl md:text-5xl font-bold text-ink mt-3 leading-tight">
+        Các chỉ số <span class="text-dat-blue">đo lường thành công</span>.
+      </h2>
+      <p class="mt-5 text-base lg:text-lg text-body leading-relaxed">
+        Mục tiêu của DAT Customer Operating System không chỉ là triển khai một hệ thống CRM mới — mà là hình thành những <strong class="text-ink">năng lực vận hành mới</strong> giúp DAT nâng cao hiệu quả quản trị khách hàng, mở rộng quy mô kinh doanh và tăng cường khả năng điều hành dựa trên dữ liệu.
+      </p>
+    </div>
+
+    <!-- 4 KPI groups -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 mb-16">
+
+      <!-- 01 -->
+      <div class="border border-subtle rounded-2xl overflow-hidden">
+        <div class="p-5 lg:p-6" style="background: linear-gradient(135deg, var(--dat-blue-lighter) 0%, #fff 100%);">
+          <div class="flex items-center gap-3 mb-1">
+            <span class="font-display text-2xl font-extrabold text-dat-blue/20">01</span>
+            <div class="text-xs font-bold text-dat-blue uppercase tracking-wider">Customer Acquisition &amp; Engagement</div>
+          </div>
+          <h3 class="font-display font-bold text-ink text-base lg:text-lg mb-1">Tiếp nhận, phản hồi và chăm sóc khách hàng</h3>
+          <p class="text-xs text-muted mb-4">Nâng cao khả năng tiếp nhận, phản hồi và chăm sóc khách hàng trên toàn hệ thống.</p>
+          <div class="space-y-2">
+            <div class="flex items-center gap-2.5 text-sm text-body"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Tỷ lệ Lead được tiếp nhận thành công</div>
+            <div class="flex items-center gap-2.5 text-sm text-body"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Tỷ lệ Lead được phản hồi đúng SLA</div>
+            <div class="flex items-center gap-2.5 text-sm text-body"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Thời gian phản hồi Lead trung bình</div>
+            <div class="flex items-center gap-2.5 text-sm text-body"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Tỷ lệ Lead được phân bổ thành công</div>
+            <div class="flex items-center gap-2.5 text-sm text-body"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Chất lượng Lead theo từng nguồn Marketing</div>
+            <div class="flex items-center gap-2.5 text-sm text-body"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Tỷ lệ chuyển đổi từ Lead sang Opportunity</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 02 -->
+      <div class="border border-subtle rounded-2xl overflow-hidden">
+        <div class="p-5 lg:p-6" style="background: linear-gradient(135deg, var(--dat-blue-lighter) 0%, #fff 100%);">
+          <div class="flex items-center gap-3 mb-1">
+            <span class="font-display text-2xl font-extrabold text-dat-blue/20">02</span>
+            <div class="text-xs font-bold text-dat-blue uppercase tracking-wider">Customer Development &amp; Growth</div>
+          </div>
+          <h3 class="font-display font-bold text-ink text-base lg:text-lg mb-1">Phát triển khách hàng và hiệu suất bán hàng</h3>
+          <p class="text-xs text-muted mb-4">Chuẩn hóa hoạt động phát triển khách hàng và nâng cao hiệu suất bán hàng.</p>
+          <div class="space-y-2">
+            <div class="flex items-center gap-2.5 text-sm text-body"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Số lượng Opportunity phát sinh</div>
+            <div class="flex items-center gap-2.5 text-sm text-body"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Tỷ lệ chuyển đổi Opportunity → Đơn hàng</div>
+            <div class="flex items-center gap-2.5 text-sm text-body"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Giá trị Pipeline đang quản lý</div>
+            <div class="flex items-center gap-2.5 text-sm text-body"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Tỷ lệ hoàn thành hoạt động Sales</div>
+            <div class="flex items-center gap-2.5 text-sm text-body"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Số cuộc gặp khách hàng &amp; báo giá phát hành</div>
+            <div class="flex items-center gap-2.5 text-sm text-body"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Hiệu suất theo Sales / BU / Khu vực</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 03 -->
+      <div class="border border-subtle rounded-2xl overflow-hidden">
+        <div class="p-5 lg:p-6" style="background: linear-gradient(135deg, var(--dat-blue-lighter) 0%, #fff 100%);">
+          <div class="flex items-center gap-3 mb-1">
+            <span class="font-display text-2xl font-extrabold text-dat-blue/20">03</span>
+            <div class="text-xs font-bold text-dat-blue uppercase tracking-wider">Customer Intelligence</div>
+          </div>
+          <h3 class="font-display font-bold text-ink text-base lg:text-lg mb-1">Quản trị và khai thác tri thức khách hàng</h3>
+          <p class="text-xs text-muted mb-4">Xây dựng năng lực quản trị và khai thác tri thức khách hàng ở quy mô tập đoàn.</p>
+          <div class="space-y-2">
+            <div class="flex items-center gap-2.5 text-sm text-body"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Tỷ lệ khách hàng có hồ sơ Account hoàn chỉnh</div>
+            <div class="flex items-center gap-2.5 text-sm text-body"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Tỷ lệ dữ liệu được đồng bộ từ SAP và các hệ thống liên quan</div>
+            <div class="flex items-center gap-2.5 text-sm text-body"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Số lượng khách hàng được nhận diện đa vai trò</div>
+            <div class="flex items-center gap-2.5 text-sm text-body"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Mức độ sử dụng dữ liệu khách hàng trong hoạt động bán hàng</div>
+            <div class="flex items-center gap-2.5 text-sm text-body"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Mức độ chuẩn hóa dữ liệu khách hàng trên toàn hệ thống</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 04 -->
+      <div class="border border-subtle rounded-2xl overflow-hidden">
+        <div class="p-5 lg:p-6" style="background: linear-gradient(135deg, var(--dat-blue-lighter) 0%, #fff 100%);">
+          <div class="flex items-center gap-3 mb-1">
+            <span class="font-display text-2xl font-extrabold text-dat-blue/20">04</span>
+            <div class="text-xs font-bold text-dat-blue uppercase tracking-wider">Executive Visibility</div>
+          </div>
+          <h3 class="font-display font-bold text-ink text-base lg:text-lg mb-1">Điều hành dựa trên dữ liệu thời gian thực</h3>
+          <p class="text-xs text-muted mb-4">Nâng cao năng lực điều hành dựa trên dữ liệu thời gian thực.</p>
+          <div class="space-y-2">
+            <div class="flex items-center gap-2.5 text-sm text-body"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Tỷ lệ Dashboard được cập nhật tự động</div>
+            <div class="flex items-center gap-2.5 text-sm text-body"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Thời gian tổng hợp báo cáo điều hành</div>
+            <div class="flex items-center gap-2.5 text-sm text-body"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Tỷ lệ chỉ số được theo dõi theo thời gian thực</div>
+            <div class="flex items-center gap-2.5 text-sm text-body"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Số lượng cảnh báo bất thường được phát hiện sớm</div>
+            <div class="flex items-center gap-2.5 text-sm text-body"><span class="w-1.5 h-1.5 rounded-full bg-dat-blue flex-shrink-0"></span>Mức độ khai thác dữ liệu phục vụ BI và AI</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Kết quả kỳ vọng -->
+    <div class="relative rounded-2xl overflow-hidden" style="background: linear-gradient(135deg, var(--dat-blue-darker) 0%, var(--dat-blue-dark) 100%);">
+      <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 24px 24px;"></div>
+      <div class="absolute top-0 right-0 w-64 h-64 rounded-full opacity-15 -translate-y-1/3 translate-x-1/4" style="background: var(--dat-orange);"></div>
+      <div class="relative p-8 lg:p-14">
+        <div class="text-xs font-bold text-white/60 uppercase tracking-widest mb-4">Kết quả kỳ vọng</div>
+        <h3 class="font-display text-2xl lg:text-4xl font-bold text-white leading-tight mb-6">
+          DAT sẽ hình thành bốn<br>
+          <span class="text-dat-orange">năng lực vận hành cốt lõi.</span>
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-8">
+          <div class="flex items-start gap-3 bg-white/10 rounded-xl p-4 border border-white/10">
+            <div class="w-6 h-6 rounded-full bg-dat-blue flex-shrink-0 flex items-center justify-center text-white text-xs font-bold mt-0.5">1</div>
+            <p class="text-sm text-white/90 leading-relaxed">Thu hút và chăm sóc khách hàng ở quy mô lớn.</p>
+          </div>
+          <div class="flex items-start gap-3 bg-white/10 rounded-xl p-4 border border-white/10">
+            <div class="w-6 h-6 rounded-full bg-dat-blue flex-shrink-0 flex items-center justify-center text-white text-xs font-bold mt-0.5">2</div>
+            <p class="text-sm text-white/90 leading-relaxed">Phát triển doanh thu bằng quy trình bán hàng chuẩn hóa.</p>
+          </div>
+          <div class="flex items-start gap-3 bg-white/10 rounded-xl p-4 border border-white/10">
+            <div class="w-6 h-6 rounded-full bg-dat-blue flex-shrink-0 flex items-center justify-center text-white text-xs font-bold mt-0.5">3</div>
+            <p class="text-sm text-white/90 leading-relaxed">Xây dựng tri thức khách hàng ở quy mô tập đoàn.</p>
+          </div>
+          <div class="flex items-start gap-3 bg-white/10 rounded-xl p-4 border border-white/10">
+            <div class="w-6 h-6 rounded-full bg-dat-blue flex-shrink-0 flex items-center justify-center text-white text-xs font-bold mt-0.5">4</div>
+            <p class="text-sm text-white/90 leading-relaxed">Điều hành doanh nghiệp dựa trên dữ liệu thời gian thực.</p>
+          </div>
+        </div>
+        <div class="border-t border-white/10 pt-6">
+          <p class="text-white/70 text-sm lg:text-base leading-relaxed max-w-3xl">
+            Thành công của dự án không được đo bằng số lượng tính năng triển khai — mà được đo bằng những năng lực vận hành mới DAT hình thành sau khi hệ thống đi vào hoạt động. Khi những năng lực này được hình thành, DAT không chỉ sở hữu một hệ thống CRM mới. <strong class="text-white">DAT sở hữu một nền tảng vận hành khách hàng có khả năng đồng hành cùng chiến lược tăng trưởng của doanh nghiệp trong nhiều năm tiếp theo.</strong>
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+<section id="cta" class="py-16 lg:py-24 relative overflow-hidden">
+  <div class="absolute inset-0" style="background: linear-gradient(135deg, var(--dat-blue-darker) 0%, var(--dat-blue-dark) 100%);"></div>
+  <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 1px 1px, white 1px, transparent 0); background-size: 32px 32px;"></div>
+  <div class="absolute top-0 right-0 w-96 h-96 rounded-full opacity-20 -translate-y-1/2 translate-x-1/3" style="background: var(--dat-orange);"></div>
+
+  <div class="relative max-w-5xl mx-auto px-4 lg:px-10 text-center">
+    <div class="inline-block mb-5">
+      <span class="pill" style="background: rgba(255,255,255,0.15); color: white; border: 1px solid rgba(255,255,255,0.2);">
+        <div class="w-2 h-2 rounded-full bg-dat-orange"></div>
+        SẴN SÀNG ĐỒNG HÀNH
+      </span>
+    </div>
+    <h2 class="font-display text-3xl md:text-5xl lg:text-6xl font-bold text-white leading-[1.05] mb-6 lg:mb-8">
+      Cùng xây dựng năng lực<br>
+      tăng trưởng cho <span class="text-dat-orange">20 năm tiếp theo</span>.
+    </h2>
+    <p class="text-base lg:text-lg text-white/80 max-w-2xl mx-auto mb-10 lg:mb-12">
+      Base.vn sẵn sàng giải đáp thắc mắc về giải pháp và khả năng tích hợp, trao đổi kế hoạch triển khai chuyên sâu và thống nhất nguồn lực dành riêng cho DAT Group trong thời gian sớm nhất.
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 max-w-3xl mx-auto mb-10 lg:mb-12">
+      <div class="bg-white/10 backdrop-blur-sm rounded-lg p-5 border border-white/10">
+        <div class="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">Bước 01</div>
+        <div class="font-semibold text-white">Giải đáp thắc mắc từng mục giải pháp</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur-sm rounded-lg p-5 border border-white/10">
+        <div class="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">Bước 02</div>
+        <div class="font-semibold text-white">Thống nhất phương án triển khai</div>
+      </div>
+      <div class="bg-white/10 backdrop-blur-sm rounded-lg p-5 border border-white/10">
+        <div class="text-xs font-semibold text-white/60 uppercase tracking-wider mb-2">Bước 03</div>
+        <div class="font-semibold text-white">Xác nhận nguồn lực &amp; khởi động</div>
+      </div>
+    </div>
+
+    <div class="inline-flex flex-col items-center gap-4 p-6 lg:p-8 rounded-2xl bg-white max-w-md mx-auto">
+      <div class="text-xs font-bold uppercase tracking-widest text-dat-blue">Liên hệ trao đổi</div>
+      <div class="flex items-center gap-4">
+        <div class="portrait-wrap" style="width:60px;height:60px;">
+          <img src="./images/portrait-nghia.jpg" alt="Trần Tuấn Anh Nghĩa"
+               onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="portrait-fallback" style="display:none;font-size:20px;">N</div>
+        </div>
+        <div class="text-left">
+          <div class="font-display font-bold text-xl text-ink">Trần Tuấn Anh Nghĩa</div>
+          <div class="text-muted text-sm mt-0.5">Phó Tổng Giám đốc · Base.vn</div>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center justify-center gap-3 mt-2 w-full">
+        <a href="mailto:nghia.tran@base.vn" class="btn-primary text-sm flex-1 justify-center">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          Gửi email
+        </a>
+        <a href="tel:0902336836" class="btn-secondary text-sm flex-1 justify-center">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          Gọi điện
+        </a>
+      </div>
+      <div class="flex flex-col items-center gap-1 mt-1 w-full">
+        <span class="text-xs text-muted">nghia.tran@base.vn &nbsp;·&nbsp; 0902 336 836</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="border-t border-subtle py-8 lg:py-10 bg-white">
+  <div class="max-w-7xl mx-auto px-4 lg:px-10 flex items-center justify-between flex-wrap gap-4">
+    <div class="flex items-center gap-3 flex-wrap">
+      <img src="./images/logo-base.png" alt="Base.vn" class="logo-img" style="height:24px">
+      <span class="text-muted text-sm">×</span>
+      <img src="./images/logo-dat.png" alt="DAT Group" class="logo-img" style="height:22px"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex'">
+      <span class="font-display font-bold text-ink text-sm" style="display:none;">
+        <span style="color:var(--dat-blue);">D</span><span style="color:var(--dat-orange);">A</span><span style="color:var(--dat-blue);">T</span>
+      </span>
+    </div>
+    <div class="text-xs text-muted">
+      © Base.vn · Proposal được chuẩn bị riêng cho DAT Group · Tháng 06, 2026
+    </div>
+  </div>
+</footer>
+
+<script>
+  // ============ TAB SWITCHING (Level 1 + Level 2 nested) ============
+  document.querySelectorAll('[data-tab]').forEach(tab => {
+    tab.addEventListener('click', (e) => {
+      const tabGroup = tab.dataset.tab;
+      const target = tab.dataset.target;
+
+      // Update tab states
+      document.querySelectorAll(`[data-tab="${tabGroup}"]`).forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      // Update panel states - use sub-panel for sub-tabs, tab-panel for main tabs
+      const isSubTab = tabGroup.includes('-sub');
+      const panelSelector = isSubTab ? '.sub-panel' : '.tab-panel';
+      document.querySelectorAll(`[data-panel="${tabGroup}"]`).forEach(p => p.classList.remove('active'));
+
+      const newPanel = document.querySelector(`[data-panel="${tabGroup}"][data-id="${target}"]`);
+      if (newPanel) {
+        setTimeout(() => newPanel.classList.add('active'), 10);
+      }
+    });
+  });
+
+  // ============ SMOOTH SCROLL ============
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      const href = link.getAttribute('href');
+      if (href === '#') return;
+      const target = document.querySelector(href);
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  // ============ ACTIVE NAV ON SCROLL ============
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('[data-nav]');
+
+  function updateActiveNav() {
+    let current = '';
+    const scrollY = window.scrollY + 100;
+    sections.forEach(section => {
+      if (section.offsetTop <= scrollY && section.offsetTop + section.offsetHeight > scrollY) {
+        current = section.id;
+      }
+    });
+    navLinks.forEach(link => {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === '#' + current) {
+        link.classList.add('active');
+      }
+    });
+  }
+
+  window.addEventListener('scroll', updateActiveNav, { passive: true });
+  updateActiveNav();
+
+  // ============ BU PIPELINE TABS (Level 3 — Multi-Pipeline selector) ============
+  document.querySelectorAll('.bu-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const group = btn.dataset.butab;
+      const target = btn.dataset.target;
+      document.querySelectorAll(`.bu-tab[data-butab="${group}"]`).forEach(b => b.classList.remove('active'));
+      document.querySelectorAll(`.bu-panel[data-bupanel="${group}"]`).forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      const panel = document.querySelector(`.bu-panel[data-id="${target}"]`);
+      if (panel) setTimeout(() => panel.classList.add('active'), 10);
+    });
+  });
+
+  // ============ HANDLE LOGO FALLBACK on initial check ============
+  // Some images error before JS loads - re-check
+  document.querySelectorAll('img').forEach(img => {
+    if (img.complete && img.naturalWidth === 0) {
+      img.dispatchEvent(new Event('error'));
+    }
+  });
+</script>
+
+</body>
+</html>
