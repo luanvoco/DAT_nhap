@@ -1,0 +1,116 @@
+═══════════════════════════════════════════════════════════════
+  DAT PROPOSAL · BASE.VN
+  Hướng dẫn sử dụng folder website proposal
+═══════════════════════════════════════════════════════════════
+
+
+1. CẤU TRÚC FOLDER
+───────────────────────────────────────────────────────────────
+
+  dat-proposal/
+  ├── index.html           ← File chính, mở trong trình duyệt
+  ├── HƯỚNG-DẪN.txt        ← File này
+  └── images/              ← Folder chứa toàn bộ ảnh
+      ├── logo-base.png
+      ├── logo-dat.png
+      ├── portrait-nghia.jpg
+      ├── 01-1-omnichannel-capture.png
+      ├── 01-2-cdp-integration.png
+      ... (xem danh sách đầy đủ ở phần 3)
+
+
+2. CÁCH XEM PROPOSAL
+───────────────────────────────────────────────────────────────
+
+  Cách 1 — Mở trực tiếp:
+    → Click đúp vào file "index.html"
+    → Trình duyệt sẽ mở proposal
+
+  Cách 2 — Deploy lên URL (khuyên dùng khi gửi DAT):
+    → Truy cập: https://app.netlify.com/drop
+    → Kéo thả CẢ FOLDER "dat-proposal" vào trang đó
+    → Sau 1-2 phút, sẽ có URL công khai
+    → Copy URL gửi cho anh Đạt
+    → KHÔNG cần tạo account, miễn phí hoàn toàn
+
+
+3. DANH SÁCH 19 ẢNH CẦN THÊM VÀO FOLDER /images/
+───────────────────────────────────────────────────────────────
+
+  ★ Logo + Chân dung (3 ảnh):
+    [ ] logo-base.png              — Logo Base.vn (nền trong suốt)
+    [ ] logo-dat.png               — Logo DAT Group (nền trong suốt)
+    [ ] portrait-nghia.jpg         — Ảnh chân dung anh Nghĩa
+
+  ★ Năng lực 01 — Acquisition & Engagement (4 ảnh):
+    [ ] 01-1-omnichannel-capture.png    — Lead Pool đa kênh
+    [ ] 01-2-cdp-integration.png        — Tích hợp Antsomi CDP
+    [ ] 01-3-lead-routing-sla.png       — Phân bổ tự động + SLA
+    [ ] 01-4-omnichannel-engagement.png — Chat đa kênh
+
+  ★ Năng lực 02 — Development & Growth (4 ảnh):
+    [ ] 02-1-multi-pipeline.png         — Kanban Pipeline 4 BU
+    [ ] 02-2-sales-playbook.png         — Sales Playbook
+    [ ] 02-3-buying-signal.png          — Cảnh báo Buying Signal
+    [ ] 02-4-forecast.png               — Forecast doanh thu
+
+  ★ Năng lực 03 — Intelligence & Insight (4 ảnh):
+    [ ] 03-1-customer-360.png           — Customer 360 View
+    [ ] 03-2-relationship.png           — Decision Tree quan hệ
+    [ ] 03-3-sap-integration.png        — Tích hợp SAP B1
+    [ ] 03-4-ai-copilot.png             — AI Copilot
+
+  ★ Năng lực 04 — Executive Visibility (4 ảnh):
+    [ ] 04-1-leading-kpi.png            — Leading Indicators
+    [ ] 04-2-lagging-kpi.png            — Lagging / Conversion
+    [ ] 04-3-data-warehouse.png         — Open API + DWH
+    [ ] 04-4-realtime-alerts.png        — Realtime Alerts
+
+
+4. CÁCH THÊM ẢNH VÀO PROPOSAL
+───────────────────────────────────────────────────────────────
+
+  Bước 1: Capture screenshot từ Base CRM (hoặc bất kỳ nguồn nào)
+
+  Bước 2: Đặt tên file ĐÚNG CHÍNH XÁC như danh sách trên
+          (chú ý: chữ thường, dấu gạch ngang, đuôi .png hoặc .jpg)
+
+  Bước 3: Copy file vào folder "images/" trong folder proposal
+
+  Bước 4: Refresh trang web (Ctrl + F5 / Cmd + Shift + R)
+          → Ảnh tự động hiển thị thay placeholder
+
+  LƯU Ý: 
+  - Nếu file chưa có ảnh → hiển thị placeholder đẹp với hướng dẫn
+  - Có thể thêm ảnh dần dần, không cần đủ ngay từ đầu
+  - Refresh trang sau khi thêm để thấy thay đổi
+
+
+5. KHUYẾN NGHỊ KỸ THUẬT KHI CHỤP SCREENSHOT
+───────────────────────────────────────────────────────────────
+
+  • Kích thước: ~1440×900 hoặc 1920×1080 px
+  • Format:     PNG (chất lượng cao) hoặc JPG (nhẹ hơn)
+  • Crop:       Không cần lấy thanh URL trình duyệt
+                Code đã có khung browser giả bao quanh
+  • Dữ liệu:    Dùng demo data nhìn "thực" 
+                (tên khách hàng/số liệu thuyết phục)
+                Tránh "test test test"
+
+
+6. NẾU MUỐN ĐIỀU CHỈNH NỘI DUNG TEXT
+───────────────────────────────────────────────────────────────
+
+  Mở file "index.html" bằng:
+  - Notepad / TextEdit (cơ bản)
+  - VS Code (khuyên dùng) — https://code.visualstudio.com
+
+  Tìm đoạn text cần sửa và edit trực tiếp.
+  Save → refresh trình duyệt.
+
+  Hoặc gửi yêu cầu sửa text cho Nghĩa, tôi sẽ update.
+
+
+═══════════════════════════════════════════════════════════════
+  Có vấn đề gì, liên hệ Trần Tuấn Anh Nghĩa · Base.vn
+═══════════════════════════════════════════════════════════════
